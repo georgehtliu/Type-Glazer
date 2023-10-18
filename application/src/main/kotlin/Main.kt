@@ -50,12 +50,26 @@ fun App() {
 @Composable
 fun StyledTextField() {
 
+    val testString = "The quick brown fox jumped over the lazy dog and cat and mouse and fish";
     var value by remember { mutableStateOf("") }
     var userPosition by remember { mutableStateOf(0) }
 
     fun update(currentInput: String) {
-        value = currentInput
-        userPosition += 1
+        if (currentInput.length < value.length) {
+            value = currentInput
+            userPosition -= 1
+        }
+        if (currentInput.length == 0) {
+            return
+        }
+        if (currentInput[currentInput.length - 1] == testString[userPosition]) {
+            if (currentInput[currentInput.length - 1] == ' ') {
+                value = ""
+            } else {
+                value = currentInput
+            }
+            userPosition += 1
+        }
     }
 
     fun buildAnnotatedStringWithUrlHighlighting(
@@ -90,7 +104,7 @@ fun StyledTextField() {
     }
 
     Row {
-        "The quick brown fox jumped over the lazy dog and cat and mouse and fish".forEachIndexed {idx, it ->
+        testString.forEachIndexed {idx, it ->
             println(idx)
             Text(
                 text = it.toString(),
