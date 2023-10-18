@@ -49,11 +49,13 @@ fun App() {
 @Composable
 fun StyledTextField() {
 
-    var value by remember { mutableStateOf("") }
+    val value = "The quick brown fox jumped over the lazy fence"
+    var userInput by remember { mutableStateOf("") }
+    var userPosition by remember { mutableStateOf(0) }
 
-    fun update(userInput : String) {
-        value = userInput
-        println(userInput)
+    fun update(currentInput : String) {
+        println(value[userPosition])
+        userPosition += 1
     }
 
     fun buildAnnotatedStringWithUrlHighlighting(
@@ -62,8 +64,7 @@ fun StyledTextField() {
     ): AnnotatedString {
         return buildAnnotatedString {
             append(text)
-            text.split(" ").forEach {
-                println(it)
+            text.split("").forEach {
                 val startIndex = text.indexOf(it)
                 val endIndex = startIndex + it.length
                 addStyle(
@@ -95,37 +96,6 @@ fun StyledTextField() {
         modifier = Modifier.padding(20.dp),
         visualTransformation = UrlTransformation(MaterialTheme.colors.secondary)
     )
-}
-object DateVisualTransformation : VisualTransformation {
-    fun transform(original: String): String {
-        val trimmed: String = original.take(8)
-        if (trimmed.length < 4) return trimmed
-        if (trimmed.length == 4) return "$trimmed-"
-        val (year, monthAndOrDate) = trimmed.chunked(4)
-        if (trimmed.length == 5 ) return "$year-$monthAndOrDate"
-        if(trimmed.length == 6) return "$year-$monthAndOrDate-"
-        val (month, date) = monthAndOrDate.chunked(2)
-        return "$year-$month-$date"
-    }
-
-    override fun filter(text: AnnotatedString): TransformedText {
-        return TransformedText(AnnotatedString(transform(text.text)),
-            object : OffsetMapping {
-                override fun originalToTransformed(offset: Int): Int {
-                    if (offset <= 3) return offset
-                    if (offset <= 5) return offset + 1
-                    if (offset <= 7) return offset + 2
-                    return 10
-                }
-
-                override fun transformedToOriginal(offset: Int): Int {
-                    if (offset <= 4) return offset
-                    if (offset <= 7) return offset - 1
-                    if (offset <= 10) return offset - 2
-                    return 8
-                }
-            })
-    }
 }
 suspend fun queryWebsite(): String {
     val site = "https://ktor.io/"
