@@ -8,6 +8,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.Modifier
@@ -23,7 +24,13 @@ fun main() = application {
 }
 
 @Composable
-fun App() {
+fun App(
+) {
+    Game()
+}
+
+@Composable
+fun Game() {
     MaterialTheme {
         var progress by remember { mutableStateOf(0.0f) }
         var passages by remember {
@@ -32,7 +39,9 @@ fun App() {
                     "The quick brown fox jumped over the lazy dog and cat and mouse and fish",
                     "The sun is shining, the birds are singing, and the flowers are blooming",
                     "Education is the most powerful weapon which you can use to change the world",
-                    "Happiness is not something ready-made. It comes from your own actions"
+                    "Happiness is not something ready-made. It comes from your own actions",
+                    "You miss 100% of the shots you don't take.",
+                    "The road less traveled is often the path to success.",
                 )
             )
         }
@@ -67,10 +76,10 @@ fun App() {
             }
         }
 
-        Column {
+        Column (horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.size(100.dp))
 
-            FullWidthDottedLine(
+            ProgressBar(
                 color = Color.Black,
                 dotRadius = 2f,
                 spacing = 8f,
@@ -114,7 +123,7 @@ fun App() {
 
 
 @Composable
-fun FullWidthDottedLine(
+fun ProgressBar(
     color: Color = Color.Black,
     dotRadius: Float = 2f,
     spacing: Float = 8f,
@@ -227,28 +236,3 @@ fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
         )
     }
 }
-
-
-@Composable
-fun Circle(
-    modifier: Modifier = Modifier,
-    color: Color = Color.Black,
-    diameter: Int = 100
-) {
-    Canvas(
-        modifier = modifier.size(diameter.dp)
-    ) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = diameter / 2
-
-        drawCircle(
-            color = color,
-            center = Offset(centerX, centerY),
-            radius = radius.toFloat(),
-            style = Stroke(2f) // You can adjust the stroke width as needed
-        )
-    }
-}
-
-
