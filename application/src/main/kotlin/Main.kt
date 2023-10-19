@@ -147,6 +147,7 @@ fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
     var lettersTyped by remember { mutableStateOf(List<Boolean>(0) { false }) }
     var wordsTyped by remember { mutableStateOf(0) }
     var raceOver by remember { mutableStateOf(false) }
+    var wrongLetters by remember { mutableStateOf(List<Boolean>(0) { false }) }
 
     fun update(currentInput: String) {
         // Check if the current input matches the next word in the passage
@@ -159,6 +160,8 @@ fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
                 } else {
                     // Mark letters in the word as incorrectly typed
                     lettersTyped = List(passageWords[wordsTyped].length) { false }
+                    // Mark wrong letters in the passage
+                    wrongLetters = List(passageWords[wordsTyped].length) { true }
                 }
                 // Clear the input text
                 inputText = ""
@@ -167,14 +170,18 @@ fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
                 val currentWord = passageWords[wordsTyped]
                 val inputWord = currentInput.trim()
                 val newLettersTyped = mutableListOf<Boolean>()
+                val newWrongLetters = mutableListOf<Boolean>()
                 for (i in 0 until currentWord.length) {
                     if (i < inputWord.length) {
                         newLettersTyped.add(inputWord[i] == currentWord[i])
+                        newWrongLetters.add(inputWord[i] != currentWord[i])
                     } else {
                         newLettersTyped.add(false)
+                        newWrongLetters.add(false)
                     }
                 }
                 lettersTyped = newLettersTyped
+                wrongLetters = newWrongLetters
                 inputText = currentInput
             }
 
@@ -193,7 +200,8 @@ fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
                 val word = passageWords[wordIdx]
                 for (letterIdx in 0 until word.length) {
                     val isTypedCorrectly = wordIdx < wordsTyped || (wordIdx == wordsTyped && lettersTyped.getOrNull(letterIdx) == true)
-                    val letterColor = if (isTypedCorrectly) Color.Green else Color.Red
+                    val isWrongLetter = wordIdx == wordsTyped && wrongLetters.getOrNull(letterIdx) == true
+                    val letterColor = if (isTypedCorrectly) Color.Green else if (isWrongLetter) Color.Red else Color.Black
                     Text(
                         text = word[letterIdx].toString(),
                         color = letterColor,
@@ -211,9 +219,11 @@ fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
             value = inputText,
             onValueChange = { update(it) },
             textStyle = TextStyle(color = Color.Blue),
-            modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp))
+            modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp)
+        )
     }
 }
+
 
 
 
