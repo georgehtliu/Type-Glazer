@@ -155,19 +155,21 @@ fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
             if (currentInput.endsWith(" ") && wordsTyped < passageWords.size) {
                 if (passageWords[wordsTyped] == currentInput.trim()) {
                     wordsTyped++
-                    // Mark all letters in the word as correctly typed
-                    lettersTyped = List(passageWords[wordsTyped - 1].length) { true }
+                    // Mark the word as correctly typed
+                    if (wordsTyped < passageWords.size) {
+                        lettersTyped = List(passageWords[wordsTyped].length) { false }
+                        wrongLetters = List(passageWords[wordsTyped].length) { false }
+                    }
                 } else {
                     // Mark letters in the word as incorrectly typed
                     lettersTyped = List(passageWords[wordsTyped].length) { false }
-                    // Mark wrong letters in the passage
                     wrongLetters = List(passageWords[wordsTyped].length) { true }
                 }
                 // Clear the input text
                 inputText = ""
             } else {
                 // Check and mark individual letters in the current word
-                val currentWord = passageWords[wordsTyped]
+                val currentWord = passageWords.getOrNull(wordsTyped) ?: ""
                 val inputWord = currentInput.trim()
                 val newLettersTyped = mutableListOf<Boolean>()
                 val newWrongLetters = mutableListOf<Boolean>()
@@ -197,11 +199,13 @@ fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
     Column {
         Row {
             for (wordIdx in 0 until passageWords.size) {
-                val word = passageWords[wordIdx]
+                val word = passageWords.getOrNull(wordIdx) ?: ""
                 for (letterIdx in 0 until word.length) {
-                    val isTypedCorrectly = wordIdx < wordsTyped || (wordIdx == wordsTyped && lettersTyped.getOrNull(letterIdx) == true)
+                    val isTypedCorrectly =
+                        wordIdx < wordsTyped || (wordIdx == wordsTyped && lettersTyped.getOrNull(letterIdx) == true)
                     val isWrongLetter = wordIdx == wordsTyped && wrongLetters.getOrNull(letterIdx) == true
-                    val letterColor = if (isTypedCorrectly) Color.Green else if (isWrongLetter) Color.Red else Color.Black
+                    val letterColor =
+                        if (isTypedCorrectly) Color.Green else if (isWrongLetter) Color.Red else Color.Black
                     Text(
                         text = word[letterIdx].toString(),
                         color = letterColor,
@@ -218,14 +222,11 @@ fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
         TextField(
             value = inputText,
             onValueChange = { update(it) },
-            textStyle = TextStyle(color = Color.Blue),
+            textStyle = TextStyle(color = if (wrongLetters.any { it }) Color.Red else Color.Blue),
             modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp)
         )
     }
 }
-
-
-
 
 
 @Composable
