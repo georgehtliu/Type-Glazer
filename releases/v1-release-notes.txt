@@ -1,0 +1,23 @@
+Version: 1.0
+Release Date: Oct 20, 2023
+
+New Features
+1. Intro Page
+- We have implemented a intro screen that provides instructions for the game.
+
+2. UI for Sign In/Sign Up
+- We have implemented the frontend of the sign in/sign up workflow
+
+3. UI for Bug Report
+- We have created the frontend of a form that allows users to submit bugs encountered during the game
+
+4. Navigation Bar
+- We have made a navigation bar that enables users to navigate between screens (home, profile and settings)
+
+5. Type Bar + Correctness Feedback + Progress Marker
+- We've added the basic functionality for the typing game.
+- As users type, each character they enter is displayed in the input field.
+- The application provides immediate feedback on the correctness of each character using highlighted text.
+- A progress bar shows how much text a user has typed and how much remains.
+- When the user completes typing the entire text, the application provides feedback on their performance (words typed and WPM)
+
