@@ -48,6 +48,13 @@ fun Game() {
         var startTime by remember { mutableStateOf(0L) }
         var wpm by remember { mutableStateOf(0) }
         var youWin by remember { mutableStateOf(false) }
+        var wordsTyped by remember { mutableStateOf(0) }
+        var totalWords by remember { mutableStateOf(0) }
+
+        fun getTotalWords(passage: String): Int {
+            val words = passage.trim().split("\\s+".toRegex())
+            return words.size
+        }
 
         fun startNewRace() {
             currentPassageIndex = (0 until passages.size).random()
@@ -55,6 +62,8 @@ fun Game() {
             startTime = System.currentTimeMillis() // Set the start time when starting a new race
             wpm = 0
             youWin = false
+            wordsTyped = 0
+            totalWords = getTotalWords(passages[currentPassageIndex])
         }
 
         // Start a new race when the composable is first displayed
@@ -63,6 +72,7 @@ fun Game() {
         }
 
         if (userPosition >= passages[currentPassageIndex].length && !youWin) {
+            wordsTyped += 1
             youWin = true
         }
 
@@ -71,7 +81,7 @@ fun Game() {
         if (startTime > 0) {
             val elapsedTime = (System.currentTimeMillis() - startTime) / 60000.0
             if (elapsedTime > 0) {
-                wpm = (userPosition / elapsedTime).toInt()
+                wpm = (wordsTyped / elapsedTime).toInt()
             } else {
                 wpm = 0
             }
@@ -92,15 +102,15 @@ fun Game() {
 
             if (!youWin) {
                 Typer(
-                    passage = passages[currentPassageIndex],
-                    onCharactersTyped = { typedCharacters, newStartTime ->
-                        userPosition = typedCharacters
-                        if (newStartTime == 0L) {
-                            // Do not start a new coroutine here, just update the start time
-                            startTime = System.currentTimeMillis()
-                        }
+                    passage = passages[currentPassageIndex]
+                ) { typedCharacters, newStartTime, wordCount ->
+                    userPosition = typedCharacters
+                    if (newStartTime == 0L) {
+                        // Do not start a new coroutine here, just update the start time
+                        startTime = System.currentTimeMillis()
                     }
-                )
+                    wordsTyped = wordCount
+                }
             } else {
                 Text("You Win!")
                 Button(
@@ -110,7 +120,7 @@ fun Game() {
                 }
             }
 
-            Text("Characters typed: $userPosition / ${passages[currentPassageIndex].length}")
+            Text("Characters typed: $wordsTyped / ${totalWords}")
             Text("WPM: $wpm")
         }
     }
@@ -148,12 +158,13 @@ fun ProgressBar(
 @Composable
 fun Typer(
     passage: String,
-    onCharactersTyped: (Int, Long) -> Unit
+    onCharactersTyped: (Int, Long, Int) -> Unit
 ) {
     var value by remember { mutableStateOf("") }
     var userPosition by remember { mutableStateOf(0) }
     var errorPosition by remember { mutableStateOf(0) }
     var prevValue by remember { mutableStateOf("") }
+    var wordCount by remember { mutableStateOf(0) }
 
     fun update(currentInput: String) {
         if (currentInput.length < prevValue.length) {
@@ -168,6 +179,7 @@ fun Typer(
         } else if (currentInput[currentInput.length - 1] == passage[userPosition] && userPosition == errorPosition) {
             if (currentInput[currentInput.length - 1] == ' ') {
                 value = ""
+                wordCount += 1
             } else {
                 value = currentInput
             }
@@ -178,7 +190,7 @@ fun Typer(
             errorPosition += 1
         }
         prevValue = value
-        onCharactersTyped(userPosition, errorPosition.toLong())
+        onCharactersTyped(userPosition, errorPosition.toLong(), wordCount)
     }
 
     Row {
