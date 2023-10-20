@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -41,12 +42,11 @@ fun Game() {
                     "Education is the most powerful weapon which you can use to change the world",
                     "Happiness is not something ready-made. It comes from your own actions",
                     "You miss 100% of the shots you don't take.",
-                    "The road less traveled is often the path to success.",
+                    "The road less traveled is often the path to success",
                 )
             )
         }
         var currentPassageIndex by remember { mutableStateOf(0) }
-        var passageWords by remember { mutableStateOf(passages[currentPassageIndex].split(" ")) }
         var userPosition by remember { mutableStateOf(0) }
         var startTime by remember { mutableStateOf(0L) }
         var wpm by remember { mutableStateOf(0) }
@@ -54,29 +54,28 @@ fun Game() {
 
         fun startNewRace() {
             currentPassageIndex = (0 until passages.size).random()
-            passageWords = passages[currentPassageIndex].split(" ")
             userPosition = 0
-            startTime = 0L
+            startTime = System.currentTimeMillis()
             wpm = 0
             youWin = false
         }
 
-        if (userPosition >= passageWords.size && !youWin) {
+        if (userPosition >= passages[currentPassageIndex].length && !youWin) {
             youWin = true
         }
 
-        progress = userPosition.toFloat() / passageWords.size
+        progress = userPosition.toFloat() / passages[currentPassageIndex].length
 
-        if (userPosition > 0 && startTime > 0) {
-            val timeElapsedMinutes = (System.currentTimeMillis() - startTime) / 60000.0
-            if (timeElapsedMinutes > 0) {
-                wpm = (userPosition / timeElapsedMinutes).toInt()
+        if (startTime > 0) {
+            val elapsedTime = (System.currentTimeMillis() - startTime) / 60000.0
+            if (elapsedTime > 0) {
+                wpm = (userPosition / elapsedTime).toInt()
             } else {
                 wpm = 0
             }
         }
 
-        Column (horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.size(100.dp))
 
             ProgressBar(
@@ -90,22 +89,16 @@ fun Game() {
             Spacer(modifier = Modifier.size(30.dp))
 
             if (!youWin) {
-                Typer(passageWords) { typedWords ->
-                    userPosition = typedWords
-                    if (startTime == 0L) {
-                        startTime = System.currentTimeMillis()
-                        // Start a coroutine to update WPM
-                        GlobalScope.launch {
-                            while (userPosition < passageWords.size && !youWin) {
-                                val elapsedTime = (System.currentTimeMillis() - startTime) / 60000.0
-                                if (elapsedTime > 0) {
-                                    wpm = (userPosition / elapsedTime).toInt()
-                                }
-                                delay(1000)
-                            }
+                Typer(
+                    passage = passages[currentPassageIndex],
+                    onCharactersTyped = { typedCharacters, newStartTime ->
+                        userPosition = typedCharacters
+                        if (newStartTime == 0L) {
+                            // Do not start a new coroutine here, just update the start time
+                            startTime = System.currentTimeMillis()
                         }
                     }
-                }
+                )
             } else {
                 Text("You Win!")
                 Button(
@@ -115,7 +108,7 @@ fun Game() {
                 }
             }
 
-            Text("Words typed: $userPosition / ${passageWords.size}")
+            Text("Characters typed: $userPosition / ${passages[currentPassageIndex].length}")
             Text("WPM: $wpm")
         }
     }
@@ -151,88 +144,60 @@ fun ProgressBar(
 
 
 @Composable
-fun Typer(passageWords: List<String>, onWordsTyped: (Int) -> Unit) {
-    var inputText by remember { mutableStateOf("") }
-    var lettersTyped by remember { mutableStateOf(List<Boolean>(0) { false }) }
-    var wordsTyped by remember { mutableStateOf(0) }
-    var raceOver by remember { mutableStateOf(false) }
-    var wrongLetters by remember { mutableStateOf(List<Boolean>(0) { false }) }
+fun Typer(
+    passage: String,
+    onCharactersTyped: (Int, Long) -> Unit
+) {
+    var value by remember { mutableStateOf("") }
+    var userPosition by remember { mutableStateOf(0) }
+    var errorPosition by remember { mutableStateOf(0) }
+    var prevValue by remember { mutableStateOf("") }
 
     fun update(currentInput: String) {
-        // Check if the current input matches the next word in the passage
-        if (!raceOver) {
-            if (currentInput.endsWith(" ") && wordsTyped < passageWords.size) {
-                if (passageWords[wordsTyped] == currentInput.trim()) {
-                    wordsTyped++
-                    // Mark the word as correctly typed
-                    if (wordsTyped < passageWords.size) {
-                        lettersTyped = List(passageWords[wordsTyped].length) { false }
-                        wrongLetters = List(passageWords[wordsTyped].length) { false }
-                    }
-                } else {
-                    // Mark letters in the word as incorrectly typed
-                    lettersTyped = List(passageWords[wordsTyped].length) { false }
-                    wrongLetters = List(passageWords[wordsTyped].length) { true }
-                }
-                // Clear the input text
-                inputText = ""
+        if (currentInput.length < prevValue.length) {
+            value = currentInput
+            errorPosition -= 1
+            if (errorPosition < userPosition) {
+                userPosition = errorPosition
+            }
+        } else if (currentInput.length == 0) {
+            errorPosition = userPosition
+            value = currentInput
+        } else if (currentInput[currentInput.length - 1] == passage[userPosition] && userPosition == errorPosition) {
+            if (currentInput[currentInput.length - 1] == ' ') {
+                value = ""
             } else {
-                // Check and mark individual letters in the current word
-                val currentWord = passageWords.getOrNull(wordsTyped) ?: ""
-                val inputWord = currentInput.trim()
-                val newLettersTyped = mutableListOf<Boolean>()
-                val newWrongLetters = mutableListOf<Boolean>()
-                for (i in 0 until currentWord.length) {
-                    if (i < inputWord.length) {
-                        newLettersTyped.add(inputWord[i] == currentWord[i])
-                        newWrongLetters.add(inputWord[i] != currentWord[i])
-                    } else {
-                        newLettersTyped.add(false)
-                        newWrongLetters.add(false)
-                    }
-                }
-                lettersTyped = newLettersTyped
-                wrongLetters = newWrongLetters
-                inputText = currentInput
+                value = currentInput
             }
-
-            if (wordsTyped == passageWords.size) {
-                raceOver = true
-            }
+            userPosition += 1
+            errorPosition += 1
+        } else {
+            value = currentInput
+            errorPosition += 1
         }
-
-        onWordsTyped(wordsTyped)
+        prevValue = value
+        onCharactersTyped(userPosition, errorPosition.toLong())
     }
 
-    // Passage text display
-    Column {
-        Row {
-            for (wordIdx in 0 until passageWords.size) {
-                val word = passageWords.getOrNull(wordIdx) ?: ""
-                for (letterIdx in 0 until word.length) {
-                    val isTypedCorrectly =
-                        wordIdx < wordsTyped || (wordIdx == wordsTyped && lettersTyped.getOrNull(letterIdx) == true)
-                    val isWrongLetter = wordIdx == wordsTyped && wrongLetters.getOrNull(letterIdx) == true
-                    val letterColor =
-                        if (isTypedCorrectly) Color.Green else if (isWrongLetter) Color.Red else Color.Black
-                    Text(
-                        text = word[letterIdx].toString(),
-                        color = letterColor,
-                    )
-                }
-                if (wordIdx < passageWords.size - 1) {
-                    // Preserve spaces between words
-                    Text(" ", color = Color.Transparent)
-                }
+    Row {
+        passage.forEachIndexed { idx, it ->
+            Surface(
+                color = if (idx < userPosition) Color.Transparent else if (idx < errorPosition) Color.Red.copy(alpha = 0.6f) else Color.Transparent,
+                modifier = Modifier.wrapContentSize()
+            ) {
+                Text(
+                    text = it.toString(),
+                    color = if (idx < userPosition) Color.Green else Color.Black,
+                )
             }
         }
-
-        // Type Bar
-        TextField(
-            value = inputText,
-            onValueChange = { update(it) },
-            textStyle = TextStyle(color = if (wrongLetters.any { it }) Color.Red else Color.Blue),
-            modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp)
-        )
     }
+
+    TextField(
+        value = value,
+        onValueChange = { update(it) },
+        textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
+        modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp),
+    )
 }
+
