@@ -51,21 +51,21 @@ sealed class BottomNavScreen(
 
 
 
-@Composable
-fun ProfileScreen() {
-//    Text(text = "Profile Screen Content")
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Blue),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "PROFILE",
-            color = Color.White
-        )
-    }
-}
+//@Composable
+//fun ProfileScreen() {
+////    Text(text = "Profile Screen Content")
+//    Box(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(Color.Blue),
+//        contentAlignment = Alignment.Center
+//    ) {
+//        Text(
+//            text = "PROFILE",
+//            color = Color.White
+//        )
+//    }
+//}
 
 @Composable
 fun SettingsScreen() {
