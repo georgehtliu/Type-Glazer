@@ -13,9 +13,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 fun main() = application {
@@ -55,9 +52,14 @@ fun Game() {
         fun startNewRace() {
             currentPassageIndex = (0 until passages.size).random()
             userPosition = 0
-            startTime = System.currentTimeMillis()
+            startTime = System.currentTimeMillis() // Set the start time when starting a new race
             wpm = 0
             youWin = false
+        }
+
+        // Start a new race when the composable is first displayed
+        if (currentPassageIndex == 0 && userPosition == 0) {
+            startNewRace()
         }
 
         if (userPosition >= passages[currentPassageIndex].length && !youWin) {
