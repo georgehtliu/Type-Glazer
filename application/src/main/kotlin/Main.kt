@@ -15,7 +15,7 @@ fun main() = application {
 @Composable
 fun App(
 ) {
-    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Profile, BottomNavScreen.Settings)
+    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Profile, BottomNavScreen.Settings, BottomNavScreen.Data )
     var selected by remember{ mutableStateOf(screens.first()) }
 
     Scaffold(
@@ -36,6 +36,7 @@ fun App(
                 BottomNavScreen.Home -> HomeScreen()
                 BottomNavScreen.Profile -> ProfileScreen()
                 BottomNavScreen.Settings -> SettingsScreen()
+                BottomNavScreen.Data -> DataTable()
             }
         }
     )

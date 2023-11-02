@@ -3,6 +3,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -37,6 +38,11 @@ sealed class BottomNavScreen(
     object Settings : BottomNavScreen(
         title = "Settings",
         icon = Icons.Default.Settings
+    )
+
+    object Data : BottomNavScreen (
+        title = "Data",
+        icon = Icons.Default.DateRange
     )
 }
 
