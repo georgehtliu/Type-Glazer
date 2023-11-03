@@ -1,16 +1,18 @@
 package com.example
 
-import com.example.plugins.*
-import io.ktor.server.application.*
+import com.example.plugins.configureRouting
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import org.bson.Document
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.ServerApi
 import com.mongodb.ServerApiVersion
-import com.mongodb.kotlin.client.coroutine.MongoClient
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Updates
+import com.mongodb.client.result.UpdateResult
+import com.mongodb.reactivestreams.client.MongoClients
 import kotlinx.coroutines.runBlocking
+
 fun main() {
     println("hello")
     // Replace the placeholders with your credentials and hostname
@@ -22,22 +24,12 @@ fun main() {
         .applyConnectionString(ConnectionString(connectionString))
         .serverApi(serverApi)
         .build()
-    // Create a new client and connect to the server
-    MongoClient.create(mongoClientSettings).use { mongoClient ->
-        val database = mongoClient.getDatabase("cs346")
-        runBlocking {
-            database.runCommand(Document("ping", 1))
-            val document = Document("username", "cindy gu")
-            val usersCollection = database.getCollection<Document>("users")
-            usersCollection.insertOne(document)
-        }
-        println("Pinged your deployment. You successfully connected to MongoDB!")
-    }
 
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
-}
+    val mongoClient = MongoClients.create(mongoClientSettings)
+    val database = mongoClient.getDatabase("cs346")
+    val userCollection = database.getCollection("races")
 
-fun Application.module() {
-    configureRouting()
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+        configureRouting(userCollection)
+    }.start(wait = true)
 }

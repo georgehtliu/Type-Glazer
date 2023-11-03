@@ -5,6 +5,7 @@ val slf4jVersion: String by project
 
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
     id("io.ktor.plugin")
 }
 
@@ -27,6 +28,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
