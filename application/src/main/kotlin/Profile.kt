@@ -46,9 +46,9 @@ fun ProfileScreen() {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            if (isWelcomeModalVisible) {
-                WelcomeModal(onDismiss = { isWelcomeModalVisible = false })
-            }
+//            if (isWelcomeModalVisible) {
+//                WelcomeModal(onDismiss = { isWelcomeModalVisible = false })
+//            }
 
             SignUpPrompt(
                 username = username,
@@ -81,32 +81,6 @@ fun ProfileScreen() {
         }
     }
 }
-
-
-@Composable
-fun WelcomeModal(onDismiss: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .padding(16.dp)
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            Text("Welcome to the Farm Racer!")
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("We're glad to have you here. Simply sign up/in and begin competing in typing competitions with your favorite farm animals")
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onDismiss) {
-                Text("Continue")
-            }
-        }
-    }
-}
-
 
 @Composable
 fun SignUpPrompt(
