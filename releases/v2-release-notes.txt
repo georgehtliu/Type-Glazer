@@ -1,0 +1,16 @@
+Version: 2.0
+Release Date: Nov 3, 2023
+
+New Features
+1. Data Table
+- We have implemented a data table for users to see their race statistics.
+- Race stats include race number, date, WPM.
+- This feature helps users view their progress overtime.
+
+2. Page Reordering
+- We have reordered pages such that the user sees an instruction page before landing on the main page.
+- This allows users to understand game rule and objectives
+
+3. Database Connection
+- A database management system (MongoDB) has been set up.
+- User race metrics can now be saved.
