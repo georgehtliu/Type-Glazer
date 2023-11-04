@@ -1,6 +1,6 @@
-package com.example
+package com.typeracer
 
-import com.example.plugins.*
+import com.typeracer.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -15,7 +15,7 @@ class ApplicationTest {
         }
         client.get("/").apply {
             assertEquals(HttpStatusCode.OK, status)
-            assertEquals("Received", bodyAsText())
+            assertEquals("Hello World!", bodyAsText())
         }
     }
 }
