@@ -6,6 +6,7 @@ val slf4jVersion: String by project
 plugins {
     kotlin("jvm")
     id("io.ktor.plugin")
+    kotlin("plugin.serialization") version "1.4.21"
 }
 
 group = "com.example"
@@ -26,6 +27,11 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("org.jetbrains.exposed", "exposed-core", "0.38.1")
+    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.38.1")
+    implementation("org.jetbrains.exposed", "exposed-dao", "0.38.1")
+    implementation("org.xerial:sqlite-jdbc:3.34.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
