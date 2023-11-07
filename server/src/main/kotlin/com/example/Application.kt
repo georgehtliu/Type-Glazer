@@ -9,22 +9,27 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 
-object Races : Table() {
-    val time = varchar("Time", 255)
-    val wpm = integer("WPM")
+object Users : Table() {
+    val userID = integer("UserId").autoIncrement()
+    val username = varchar("Username", length = 50)
+    val email = varchar("Email", length = 100)
+    val password = varchar("Password", length = 100)
+
+    override val primaryKey = PrimaryKey(userID)
 }
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
+    embeddedServer(Netty, port = 5050, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
 
 fun Application.module() {
-    Database.connect("jdbc:sqlite:/Users/markliu/main.db", driver = "org.sqlite.JDBC")
+    Database.connect("jdbc:sqlite:/Users/georgeliu/typeracer.db", driver = "org.sqlite.JDBC")
 
-    transaction {
-        SchemaUtils.create(Races)
-    }
+//    transaction {
+//        SchemaUtils.create(Users)
+//    }
 
     configureRouting()
+    configureSerialization()
 }
