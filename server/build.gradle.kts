@@ -9,11 +9,11 @@ plugins {
     kotlin("plugin.serialization") version "1.4.21"
 }
 
-group = "com.example"
+group = "com.typeracer"
 version = "0.0.1"
 
 application {
-    mainClass.set("com.example.ApplicationKt")
+    mainClass.set("com.typeracer.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
