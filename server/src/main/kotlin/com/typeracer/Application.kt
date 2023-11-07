@@ -14,10 +14,6 @@ fun main() {
 fun Application.module() {
     Database.connect("jdbc:sqlite:/Users/georgeliu/typeracer.db", driver = "org.sqlite.JDBC")
 
-//    transaction {
-//        SchemaUtils.create(Users)
-//    }
-
     configureRouting()
     configureSerialization()
 }
