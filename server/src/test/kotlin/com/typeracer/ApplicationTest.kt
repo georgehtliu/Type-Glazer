@@ -1,11 +1,12 @@
-package com.example
+package com.typeracer
 
-import com.example.plugins.*
+import com.typeracer.plugins.configureRouting
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import kotlin.test.*
+import junit.framework.TestCase.assertEquals
+import kotlin.test.Test
 
 class ApplicationTest {
     @Test
@@ -16,6 +17,6 @@ class ApplicationTest {
         client.get("/").apply {
             assertEquals(HttpStatusCode.OK, status)
             assertEquals("Received", bodyAsText())
-        }
-    }
+       }
+   }
 }

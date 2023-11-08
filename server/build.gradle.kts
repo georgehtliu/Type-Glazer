@@ -9,11 +9,11 @@ plugins {
     kotlin("plugin.serialization") version "1.4.21"
 }
 
-group = "com.example"
+group = "com.typeracer"
 version = "0.0.1"
 
 application {
-    mainClass.set("com.example.ApplicationKt")
+    mainClass.set("com.typeracer.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
@@ -32,14 +32,18 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-dao", "0.38.1")
     implementation("org.xerial:sqlite-jdbc:3.34.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-gson-jvm:$ktorVersion")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
 }
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_17 // Set source compatibility
+
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-        vendor = JvmVendorSpec.AZUL
+        languageVersion.set(JavaLanguageVersion.of(17)) // Use set method for read-only properties
+        vendor.set(JvmVendorSpec.AZUL) // Use set method for read-only properties
     }
 }
