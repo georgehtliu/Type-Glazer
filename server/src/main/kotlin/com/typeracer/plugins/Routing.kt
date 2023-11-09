@@ -1,5 +1,6 @@
 package com.typeracer.plugins
 
+import com.typeracer.routes.authRoutes
 import com.typeracer.routes.textRoutes
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -15,5 +16,6 @@ fun Application.configureRouting() {
         }
         userRoutes()
         textRoutes()
+        authRoutes()
     }
 }
