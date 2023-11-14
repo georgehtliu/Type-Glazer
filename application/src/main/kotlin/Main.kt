@@ -11,7 +11,11 @@ import kotlin.system.exitProcess
 
 fun main() = application {
     var initialState = ""
-    File("test.txt").forEachLine { initialState = it }
+    val file = File("test.txt")
+    if (!file.exists()) {
+        File("test.txt").writeText("Absolute(0.dp, 0.dp);600.0.dp x 400.0.dp")
+    }
+    file.forEachLine { initialState = it }
     val position = initialState.split(";")[0]
     val xPos = position.split(",")[0].split("(")[1].split(".")[0].toInt()
     val yPos = position.split(",")[1].split(".")[0].split(" ")[1].toInt()
