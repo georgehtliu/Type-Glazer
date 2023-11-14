@@ -7,6 +7,55 @@ import androidx.compose.ui.window.application
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.client.statement.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+@Serializable
+data class LoginRequest(val username: String, val password: String)
+
+enum class LoginStatus {
+    NONE,
+    SUCCESS,
+    FAILURE
+}
+
+suspend fun login(username: String, password: String): Boolean {
+    // Check if the provided username and password match the predefined values
+    if (username == "testuser" && password == "testpassword") {
+        return true
+    }
+
+    // If the provided values don't match, perform the actual login logic
+    val usersEndpoint = "http://localhost:5050/login"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    try {
+        val response: HttpResponse = client.post(usersEndpoint) {
+            contentType(ContentType.Application.Json)
+            setBody(LoginRequest(username, password))
+        }
+
+        // Close the client after the request
+        client.close()
+
+        return response.status.value in 200..299
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+        return false
+    }
+}
 fun main() = application {
     Window(onCloseRequest = ::exitApplication) {
         App()
@@ -56,6 +105,15 @@ fun ShowMainScreens(
 
 @Composable
 fun IntroScreen(onDismiss: () -> Unit) {
+
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isSignInMode by remember { mutableStateOf(true) }
+    var loginStatus by remember { mutableStateOf(LoginStatus.NONE) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold (
         content = {
             Box(
@@ -75,14 +133,43 @@ fun IntroScreen(onDismiss: () -> Unit) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("We're glad to have you here.")
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Simply sign up/in and begin competing in typing competitions with your favorite farm animals")
+                    Text("Simply sign in and begin competing in typing competitions with your favorite farm animals")
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onDismiss) {
-                        Text("Continue")
+                    SignUpPrompt(username, password, { username = it }, { password = it }, isSignInMode)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (loginStatus == LoginStatus.FAILURE) {
+                        Text(errorMessage)
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(onClick = {
+                            coroutineScope.launch(Dispatchers.Default) {
+                                val success = login(username, password)
+                                if (success) {
+                                    onDismiss.invoke()
+                                } else {
+                                    errorMessage = "Invalid username or password. Please try again."
+                                    loginStatus = LoginStatus.FAILURE
+                                }
+                            }
+                        }) {
+                            Text("Sign In")
+                        }
                     }
                 }
             }
         }
     )
 }
+
+
+
+
 
