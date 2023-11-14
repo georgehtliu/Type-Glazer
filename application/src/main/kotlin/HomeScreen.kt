@@ -113,7 +113,7 @@ fun Game() {
                 }
             }
 
-            Text("Characters typed: $wordsTyped / ${totalWords}")
+            Text("Words typed: $wordsTyped / ${totalWords}")
             Text("WPM: $wpm")
         }
     }
