@@ -2,13 +2,29 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.*
+import java.io.File
+import kotlin.system.exitProcess
+
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    var initialState = ""
+    File("test.txt").forEachLine { initialState = it }
+    val position = initialState.split(";")[0]
+    val xPos = position.split(",")[0].split("(")[1].split(".")[0].toInt()
+    val yPos = position.split(",")[1].split(".")[0].split(" ")[1].toInt()
+    val size = initialState.split(";")[1]
+    val width = size.split(".")[0].toInt()
+    val height = size.split(".")[2].split(" ")[2].toInt()
+    val state = rememberWindowState(height = height.dp, width = width.dp, position = WindowPosition.Absolute(xPos.dp, yPos.dp))
+
+    fun close() {
+        File("test.txt").writeText(state.position.toString() + ";" + state.size.toString())
+        exitProcess(0)
+    }
+    Window(onCloseRequest = { close() }, state) {
         App()
     }
 }
