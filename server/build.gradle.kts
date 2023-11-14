@@ -34,7 +34,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-gson-jvm:$ktorVersion")
-
+    implementation ("com.google.code.gson:gson:2.8.8")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
 }
