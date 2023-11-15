@@ -1,22 +1,23 @@
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.http.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
+
 @Serializable
 data class LoginRequest(val username: String, val password: String)
 
@@ -75,7 +76,7 @@ fun App(
 @Composable
 fun ShowMainScreens(
 ) {
-    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Profile, BottomNavScreen.Settings, BottomNavScreen.Data )
+    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Profile, BottomNavScreen.Settings, BottomNavScreen.Data, BottomNavScreen.MyChallenges)
     var selected by remember{ mutableStateOf(screens.first()) }
 
     Scaffold(
@@ -97,6 +98,7 @@ fun ShowMainScreens(
                 BottomNavScreen.Profile -> ProfileScreen()
                 BottomNavScreen.Settings -> SettingsScreen()
                 BottomNavScreen.Data -> DataTable()
+                BottomNavScreen.MyChallenges -> MyChallenges()
             }
         }
     )
