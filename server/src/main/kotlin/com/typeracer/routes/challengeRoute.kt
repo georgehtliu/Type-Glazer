@@ -1,4 +1,5 @@
 package com.typeracer.routes
+import Challenge
 import com.typeracer.data.model.SendChallengeRequest
 import com.typeracer.data.schema.Challenges
 import io.ktor.server.application.*
@@ -8,8 +9,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import com.typeracer.data.schema.Users
 import io.ktor.http.*
 import io.ktor.server.response.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.deleteWhere
 
 fun Route.challengeRoutes() {
 
@@ -54,8 +58,45 @@ fun Route.challengeRoutes() {
         }
     }
 
-    // url has user id parameter
+    // get all challenges where toUserID is equal to the url param
     get("/challenges/get") {
+        val userId = call.parameters["userId"]?.toIntOrNull()
 
+        if (userId != null) {
+            try {
+                val challenges = transaction {
+                    Challenges.select { Challenges.toUserID eq userId }
+                        .map {
+                            Challenge(
+                                it[Challenges.challengeID],
+                                it[Challenges.textID],
+                                it[Challenges.fromUserID],
+                                it[Challenges.toUserID],
+                                it[Challenges.raceID]
+                            )
+                        }
+                }
+                call.respondText(Json.encodeToString(challenges), ContentType.Application.Json)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, "Error retrieving challenges: ${e.localizedMessage}")
+            }
+        } else {
+            call.respond(HttpStatusCode.BadRequest, "Invalid user ID parameter")
+        }
+    }
+
+    // delete challenge when complete
+    delete("/challenges/delete") {
+        val challengeID = call.parameters["challengeId"]?.toIntOrNull()
+        if (challengeID != null) {
+            transaction {
+                // Use the Challenges table to delete the challenge by ID
+                Challenges.deleteWhere { Challenges.challengeID eq challengeID }
+            }
+
+            call.respondText("Challenge with ID $challengeID deleted successfully", status = HttpStatusCode.OK)
+        } else {
+            call.respondText("Invalid challenge ID", status = HttpStatusCode.BadRequest)
+        }
     }
 }
