@@ -99,7 +99,7 @@ fun App(
     var onIntroScreen by remember { mutableStateOf(true) }
     var currentUser = userId(-1)
     if (onIntroScreen) {
-        IntroScreen(onDismiss = {onIntroScreen = false; print(currentUser.userId)}, currentUser)
+        IntroScreen(onDismiss = {onIntroScreen = false}, currentUser)
     } else {
         ShowMainScreens()
     }

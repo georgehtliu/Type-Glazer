@@ -51,8 +51,6 @@ fun Route.userRoutes() {
                     .singleOrNull()
             }
 
-            print(foundUser?.userID)
-
             call.respondText(Json.encodeToString(foundUser?.userID), ContentType.Application.Json, status = HttpStatusCode.Created)
         } else {
             call.respondText("Invalid user data", status = HttpStatusCode.BadRequest)
