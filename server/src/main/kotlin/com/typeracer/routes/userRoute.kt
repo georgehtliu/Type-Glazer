@@ -10,7 +10,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -42,7 +45,15 @@ fun Route.userRoutes() {
                 }
             }
 
-            call.respondText("User created successfully", status = HttpStatusCode.Created)
+            val foundUser = transaction {
+                Users.select { (Users.username eq username) and (Users.password eq password) }
+                    .map { User(it[Users.userID], it[Users.username], it[Users.email], it[Users.password]) }
+                    .singleOrNull()
+            }
+
+            print(foundUser?.userID)
+
+            call.respondText(Json.encodeToString(foundUser?.userID), ContentType.Application.Json, status = HttpStatusCode.Created)
         } else {
             call.respondText("Invalid user data", status = HttpStatusCode.BadRequest)
         }
