@@ -41,11 +41,37 @@ fun Application.module() {
             it[password] = "password123"
         }
 
+        Users.insert {
+            it[username] = "JaneDoe"
+            it[email] = "jane@example.com"
+            it[password] = "pass456"
+        }
+
+        Users.insert {
+            it[username] = "BobSmith"
+            it[email] = "bob@example.com"
+            it[password] = "bobpass"
+        }
+
         Races.insert {
             it[userID] = 1
             it[textID] = 1
             it[date] = "2023-01-01"
             it[wpm] = 60
+        }
+
+        Races.insert {
+            it[userID] = 2
+            it[textID] = 1
+            it[date] = "2023-02-01"
+            it[wpm] = 75
+        }
+
+        Races.insert {
+            it[userID] = 3
+            it[textID] = 1
+            it[date] = "2023-03-01"
+            it[wpm] = 80
         }
 
         Texts.insert {
@@ -57,6 +83,20 @@ fun Application.module() {
             it[fromUserID] = 1
             it[toUserID] = 2
             it[raceID] = 1
+        }
+
+        Challenges.insert {
+            it[textID] = 1
+            it[fromUserID] = 2
+            it[toUserID] = 3
+            it[raceID] = 2
+        }
+
+        Challenges.insert {
+            it[textID] = 1
+            it[fromUserID] = 3
+            it[toUserID] = 1
+            it[raceID] = 3
         }
     }
 
