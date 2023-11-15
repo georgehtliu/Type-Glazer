@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RaceResultRequest(val userId: Int, val textId: Int, val date: String, val wpm: Int)
+data class RaceResultRequest(val userID: Int, val textID: Int, val date: String, val wpm: Int)
 
 @Composable
 fun HomeScreen(
@@ -153,13 +153,16 @@ suspend fun submitRaceResult(wpm: Int): Boolean {
 
     try {
         // TODO : replace with actual userId and stuff
-        val userId = 2
-        val textId = 2
+        val userID = 2
+        val textID = 2
         val date = "2022-12-12"
 
         val response: HttpResponse = client.post(insertRaceEndpoint) {
             contentType(ContentType.Application.Json)
-            setBody(RaceResultRequest(userId, textId, date, wpm))
+
+            println(RaceResultRequest(userID, textID, date, wpm))
+
+            setBody(RaceResultRequest(userID, textID, date, wpm))
         }
 
         // Close the client after the request
