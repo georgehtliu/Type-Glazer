@@ -1,18 +1,29 @@
-import androidx.compose.material.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.*
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
-import androidx.compose.runtime.Composable
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class RaceResultRequest(val userId: Int, val textId: Int, val date: String, val wpm: Int)
 
 @Composable
 fun HomeScreen(
@@ -43,6 +54,7 @@ fun Game() {
         var youWin by remember { mutableStateOf(false) }
         var wordsTyped by remember { mutableStateOf(0) }
         var totalWords by remember { mutableStateOf(0) }
+        val coroutineScope = rememberCoroutineScope()
 
         fun getTotalWords(passage: String): Int {
             val words = passage.trim().split("\\s+".toRegex())
@@ -67,6 +79,16 @@ fun Game() {
         if (userPosition >= passages[currentPassageIndex].length && !youWin) {
             wordsTyped += 1
             youWin = true
+
+            // Call the function to submit the post request
+            coroutineScope.launch(Dispatchers.Default) {
+                val success = submitRaceResult(wpm)
+                if (success) {
+                    print("[SUCCESSFUL] SUBMITTING RACE")
+                } else {
+                    print("[FAILED] SUBMITTING RACE")
+                }
+            }
         }
 
         progress = userPosition.toFloat() / passages[currentPassageIndex].length
@@ -119,6 +141,37 @@ fun Game() {
     }
 }
 
+
+
+suspend fun submitRaceResult(wpm: Int): Boolean {
+    val insertRaceEndpoint = "http://localhost:5050/insertRace"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    try {
+        // TODO : replace with actual userId and stuff
+        val userId = 2
+        val textId = 2
+        val date = "2022-12-12"
+
+        val response: HttpResponse = client.post(insertRaceEndpoint) {
+            contentType(ContentType.Application.Json)
+            setBody(RaceResultRequest(userId, textId, date, wpm))
+        }
+
+        // Close the client after the request
+        client.close()
+
+        // Handle the response if needed
+        return response.status.value in 200..299
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+        return false
+    }
+}
 
 @Composable
 fun ProgressBar(
