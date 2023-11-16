@@ -20,6 +20,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -86,19 +87,7 @@ fun InviteFriends() {
 fun Game(currentuserId: Int) {
     MaterialTheme {
         var progress by remember { mutableStateOf(0.0f) }
-        var passages by remember {
-            mutableStateOf(
-                listOf(
-                    "The quick brown fox jumped over the lazy dog and cat and mouse and fish",
-                    "The sun is shining, the birds are singing, and the flowers are blooming",
-                    "Education is the most powerful weapon which you can use to change the world",
-                    "Happiness is not something ready-made. It comes from your own actions",
-                    "You miss 100% of the shots you don't take.",
-                    "The road less traveled is often the path to success",
-                )
-            )
-        }
-        var currentPassageIndex by remember { mutableStateOf(0) }
+        var passage by remember { mutableStateOf("") }
         var userPosition by remember { mutableStateOf(0) }
         var startTime by remember { mutableStateOf(0L) }
         var wpm by remember { mutableStateOf(0) }
@@ -107,27 +96,72 @@ fun Game(currentuserId: Int) {
         var totalWords by remember { mutableStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
 
+        // Function to fetch a random passage
+        suspend fun fetchRandomPassage() {
+            val randomTextEndpoint = "http://localhost:5050/texts/random"
+            val client = HttpClient(CIO) {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+
+            try {
+                val response: HttpResponse = client.get(randomTextEndpoint)
+
+                // Close the client after the request
+                client.close()
+
+                if (response.status == HttpStatusCode.OK) {
+                    withContext(Dispatchers.Main) {
+                        passage = response.bodyAsText()
+                    }
+                } else {
+                    print("[FAILED] FETCHING RANDOM PASSAGE")
+                }
+            } catch (e: Exception) {
+                // Handle exceptions if needed
+                print("[FAILED] FETCHING RANDOM PASSAGE")
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            if (passage.isBlank()) {
+                val result = produceState(initialValue = "") {
+                    fetchRandomPassage()
+                }
+                passage = result.value
+            }
+        }
+
         fun getTotalWords(passage: String): Int {
             val words = passage.trim().split("\\s+".toRegex())
             return words.size
         }
 
         fun startNewRace() {
-            currentPassageIndex = (0 until passages.size).random()
+            coroutineScope.launch(Dispatchers.Default) {
+                fetchRandomPassage()
+            }
             userPosition = 0
             startTime = System.currentTimeMillis() // Set the start time when starting a new race
             wpm = 0
             youWin = false
             wordsTyped = 0
-            totalWords = getTotalWords(passages[currentPassageIndex])
+            totalWords = getTotalWords(passage)
         }
 
+//        LaunchedEffect(Unit) {
+//            if (passage.isBlank()) {
+//                fetchRandomPassage()
+//            }
+//        }
+
         // Start a new race when the composable is first displayed
-        if (currentPassageIndex == 0 && userPosition == 0) {
+        if (userPosition == 0 && passage.isNotBlank()) {
             startNewRace()
         }
 
-        if (userPosition >= passages[currentPassageIndex].length && !youWin) {
+        if (userPosition >= passage.length && !youWin) {
             wordsTyped += 1
             youWin = true
 
@@ -142,7 +176,7 @@ fun Game(currentuserId: Int) {
             }
         }
 
-        progress = userPosition.toFloat() / passages[currentPassageIndex].length
+        progress = userPosition.toFloat() / passage.length
 
         if (startTime > 0) {
             val elapsedTime = (System.currentTimeMillis() - startTime) / 60000.0
@@ -168,7 +202,7 @@ fun Game(currentuserId: Int) {
 
             if (!youWin) {
                 Typer(
-                    passage = passages[currentPassageIndex]
+                    passage = passage
                 ) { typedCharacters, newStartTime, wordCount ->
                     userPosition = typedCharacters
                     if (newStartTime == 0L) {
