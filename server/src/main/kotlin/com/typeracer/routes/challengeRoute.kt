@@ -1,25 +1,25 @@
 package com.typeracer.routes
 import Challenge
-import com.typeracer.data.model.SendChallengeRequest
+import com.typeracer.data.model.NewChallenge
 import com.typeracer.data.schema.Challenges
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.routing.*
-import org.jetbrains.exposed.sql.transactions.transaction
 import com.typeracer.data.schema.Users
 import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Route.challengeRoutes() {
 
     post("/challenges/send") {
         try {
-            val sendChallengeRequest = call.receive<SendChallengeRequest>()
+            val sendChallengeRequest = call.receive<NewChallenge>()
             val fromUserID = sendChallengeRequest.fromUserID
             val toUsername = sendChallengeRequest.toUsername
             val textID = sendChallengeRequest.textID

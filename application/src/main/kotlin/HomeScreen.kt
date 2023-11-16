@@ -27,10 +27,38 @@ import java.time.format.DateTimeFormatter
 @Serializable
 data class RaceResultRequest(val userID: Int, val textID: Int, val date: String, val wpm: Int)
 
+@Serializable
+data class SendChallengeRequest(val fromUserID: Int, val toUsername: String, val textID: Int, val raceID: Int)
+
 @Composable
 fun HomeScreen(currentuserId: Int
 ) {
     Game(currentuserId)
+}
+
+suspend fun submitChallenge(fromUserID: Int, toUsername: String, textID: Int, raceID: Int): Boolean {
+    val sendChallengeEndpoint = "http://localhost:5050/challenges/send"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    try {
+        val response: HttpResponse = client.post(sendChallengeEndpoint) {
+            contentType(ContentType.Application.Json)
+            setBody(SendChallengeRequest(fromUserID, toUsername, textID, raceID))
+        }
+
+        // Close the client after the request
+        client.close()
+
+        // Handle the response if needed
+        return response.status.value in 200..299
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+        return false
+    }
 }
 
 
@@ -39,6 +67,8 @@ fun InviteFriends() {
     var text by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var iserror by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
 
     Row (
         modifier = Modifier.fillMaxWidth(),
@@ -68,9 +98,26 @@ fun InviteFriends() {
         Button(
             onClick = {
                 if (text.isNotBlank()) {
+                    // Fake data for fromUserID, textID, raceID
+                    val fromUserID = 1
+                    val toUsername = text
+                    val textID = 1
+                    val raceID = 456
                     message = "User @$text has been invited!"
                     text = ""
                     iserror = false
+
+
+
+                    // Call the function to submit the challenge request
+                    coroutineScope.launch(Dispatchers.Default) {
+                        val success = submitChallenge(fromUserID, toUsername, textID, raceID)
+                        if (success) {
+                            print("[SUCCESSFUL] SENDING CHALLENGE")
+                        } else {
+                            print("[FAILED] SENDING CHALLENGE")
+                        }
+                    }
                 } else {
                     message = "Invalid Username"
                     iserror = true
