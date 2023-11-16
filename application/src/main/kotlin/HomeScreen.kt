@@ -20,6 +20,55 @@ fun HomeScreen(
     Game()
 }
 
+
+@Composable
+fun InviteFriends() {
+    var text by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+    var iserror by remember { mutableStateOf(false) }
+
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+        ) {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Friend's Username") },
+            )
+
+            message.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                if (iserror) {
+                    Text(it, color = Color.Red)
+                } else{
+                    Text(it, color = Color.Green)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Button(
+            onClick = {
+                if (text.isNotBlank()) {
+                    message = "User @$text has been invited!"
+                    text = ""
+                    iserror = false
+                } else {
+                    message = "Invalid Username"
+                    iserror = true
+                }
+            }
+        ) {
+            Text("Invite")
+        }
+    }
+}
+
 @Composable
 fun Game() {
     MaterialTheme {
@@ -115,6 +164,14 @@ fun Game() {
 
             Text("Words typed: $wordsTyped / ${totalWords}")
             Text("WPM: $wpm")
+
+            if (youWin) {
+                Spacer(modifier = Modifier.height(50.dp))
+                Text("Challenge a Friend to the Same Race:")
+                Spacer(modifier = Modifier.height(20.dp))
+                InviteFriends()
+            }
+
         }
     }
 }
