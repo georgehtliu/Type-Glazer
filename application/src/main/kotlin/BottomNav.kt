@@ -1,7 +1,8 @@
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -10,6 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 sealed class BottomNavScreen(
@@ -68,18 +72,3 @@ sealed class BottomNavScreen(
 //        )
 //    }
 //}
-
-@Composable
-fun SettingsScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Green),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "SETTINGS",
-            color = Color.White
-        )
-    }
-}
