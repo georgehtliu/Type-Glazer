@@ -21,14 +21,16 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Serializable
 data class RaceResultRequest(val userID: Int, val textID: Int, val date: String, val wpm: Int)
 
 @Composable
-fun HomeScreen(
+fun HomeScreen(currentuserId: Int
 ) {
-    Game()
+    Game(currentuserId)
 }
 
 
@@ -81,7 +83,7 @@ fun InviteFriends() {
 }
 
 @Composable
-fun Game() {
+fun Game(currentuserId: Int) {
     MaterialTheme {
         var progress by remember { mutableStateOf(0.0f) }
         var passages by remember {
@@ -131,7 +133,7 @@ fun Game() {
 
             // Call the function to submit the post request
             coroutineScope.launch(Dispatchers.Default) {
-                val success = submitRaceResult(wpm)
+                val success = submitRaceResult(currentuserId, wpm)
                 if (success) {
                     print("[SUCCESSFUL] SUBMITTING RACE")
                 } else {
@@ -200,7 +202,7 @@ fun Game() {
 
 
 
-suspend fun submitRaceResult(wpm: Int): Boolean {
+suspend fun submitRaceResult(currentuserId: Int, wpm: Int): Boolean {
     val insertRaceEndpoint = "http://localhost:5050/insertRace"
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -209,10 +211,13 @@ suspend fun submitRaceResult(wpm: Int): Boolean {
     }
 
     try {
-        // TODO : replace with actual userId and stuff
-        val userID = 2
+        // TODO : replace with actual textId
+        val userID = currentuserId
         val textID = 2
-        val date = "2022-12-12"
+        val currentDate = LocalDate.now()
+        // Define the desired date format
+        val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val date = currentDate.format(dateFormat)
 
         val response: HttpResponse = client.post(insertRaceEndpoint) {
             contentType(ContentType.Application.Json)
