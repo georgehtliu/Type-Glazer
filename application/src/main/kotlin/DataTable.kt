@@ -67,12 +67,12 @@ suspend fun getRaces(currentuserId: Int): Boolean {
 }
 
 @Composable
-fun DataTable(currentuserId: Int) {
+fun DataTable(currentUserState: UserState) {
 
     var localRaceInfoList by remember { mutableStateOf(listOf<RaceInfo>()) }
 
     LaunchedEffect(Unit) {
-        val success = getRaces(currentuserId)
+        val success = getRaces(currentUserState.currentUser.userId)
         if (success) {
             localRaceInfoList = RaceInfoList
         }

@@ -28,9 +28,9 @@ import java.time.format.DateTimeFormatter
 data class RaceResultRequest(val userID: Int, val textID: Int, val date: String, val wpm: Int)
 
 @Composable
-fun HomeScreen(currentuserId: Int
+fun HomeScreen(currentUserState: UserState
 ) {
-    Game(currentuserId)
+    Game(currentUserState)
 }
 
 
@@ -83,26 +83,23 @@ fun InviteFriends() {
 }
 
 @Composable
-fun Game(currentuserId: Int) {
+fun Game(currentUserState: UserState) {
     MaterialTheme {
         var progress by remember { mutableStateOf(0.0f) }
-        var passages by remember {
-            mutableStateOf(
-                listOf(
-                    "The quick brown fox jumped over the lazy dog and cat and mouse and fish",
-                    "The sun is shining, the birds are singing, and the flowers are blooming",
-                    "Education is the most powerful weapon which you can use to change the world",
-                    "Happiness is not something ready-made. It comes from your own actions",
-                    "You miss 100% of the shots you don't take.",
-                    "The road less traveled is often the path to success",
-                )
-            )
-        }
+        val passages: HashMap<Int, String> = HashMap<Int, String>()
+        passages[0] = "The quick brown fox jumped over the lazy dog and cat and mouse and fish"
+        passages[1] = "The sun is shining, the birds are singing, and the flowers are blooming"
+        passages[2] = "Education is the most powerful weapon which you can use to change the world"
+        passages[3] = "Happiness is not something ready-made. It comes from your own actions"
+        passages[4] = "You miss 100% of the shots you don't take."
+        passages[5] = "The road less traveled is often the path to success"
+
         var currentPassageIndex by remember { mutableStateOf(0) }
         var userPosition by remember { mutableStateOf(0) }
         var startTime by remember { mutableStateOf(0L) }
         var wpm by remember { mutableStateOf(0) }
         var youWin by remember { mutableStateOf(false) }
+        var showStartButton by remember { mutableStateOf(true) }
         var wordsTyped by remember { mutableStateOf(0) }
         var totalWords by remember { mutableStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
@@ -112,28 +109,33 @@ fun Game(currentuserId: Int) {
             return words.size
         }
 
+        fun getPassageIndex(challengeTextId : Int): Int {
+            if (challengeTextId != -1) {
+                return challengeTextId
+            } else {
+                return (0 until passages.size).random()
+            }
+
+        }
+
+
         fun startNewRace() {
-            currentPassageIndex = (0 until passages.size).random()
+            currentPassageIndex = getPassageIndex(currentUserState.acceptedChallenge.textId)
             userPosition = 0
             startTime = System.currentTimeMillis() // Set the start time when starting a new race
             wpm = 0
             youWin = false
             wordsTyped = 0
-            totalWords = getTotalWords(passages[currentPassageIndex])
+            totalWords = passages[currentPassageIndex]?.let { getTotalWords(it) }!!
         }
 
-        // Start a new race when the composable is first displayed
-        if (currentPassageIndex == 0 && userPosition == 0) {
-            startNewRace()
-        }
-
-        if (userPosition >= passages[currentPassageIndex].length && !youWin) {
+        if (userPosition >= passages[currentPassageIndex]?.length!! && !youWin) {
             wordsTyped += 1
             youWin = true
 
             // Call the function to submit the post request
             coroutineScope.launch(Dispatchers.Default) {
-                val success = submitRaceResult(currentuserId, wpm)
+                val success = submitRaceResult(currentUserState.currentUser.userId, wpm)
                 if (success) {
                     print("[SUCCESSFUL] SUBMITTING RACE")
                 } else {
@@ -142,7 +144,7 @@ fun Game(currentuserId: Int) {
             }
         }
 
-        progress = userPosition.toFloat() / passages[currentPassageIndex].length
+        progress = userPosition.toFloat() / passages[currentPassageIndex]?.length!!
 
         if (startTime > 0) {
             val elapsedTime = (System.currentTimeMillis() - startTime) / 60000.0
@@ -153,47 +155,56 @@ fun Game(currentuserId: Int) {
             }
         }
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(modifier = Modifier.size(100.dp))
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,) {
 
-            ProgressBar(
-                color = Color.Black,
-                dotRadius = 2f,
-                spacing = 8f,
-                lineWidth = 2f,
-                progress = progress
-            )
-
-            Spacer(modifier = Modifier.size(30.dp))
-
-            if (!youWin) {
-                Typer(
-                    passage = passages[currentPassageIndex]
-                ) { typedCharacters, newStartTime, wordCount ->
-                    userPosition = typedCharacters
-                    if (newStartTime == 0L) {
-                        // Do not start a new coroutine here, just update the start time
-                        startTime = System.currentTimeMillis()
-                    }
-                    wordsTyped = wordCount
+            if (showStartButton) {
+                Button(
+                    onClick = { startNewRace(); showStartButton = false; currentUserState.acceptedChallenge.textId = -1 }
+                ) {
+                    Text("Start Race")
                 }
             } else {
-                Text("You Win!")
-                Button(
-                    onClick = { startNewRace() }
-                ) {
-                    Text("Start New Race")
+                ProgressBar(
+                    color = Color.Black,
+                    dotRadius = 2f,
+                    spacing = 8f,
+                    lineWidth = 2f,
+                    progress = progress
+                )
+
+                Spacer(modifier = Modifier.size(30.dp))
+
+                if (!youWin) {
+                    passages[currentPassageIndex]?.let {
+                        Typer(
+                            passage = it
+                        ) { typedCharacters, newStartTime, wordCount ->
+                            userPosition = typedCharacters
+                            if (newStartTime == 0L) {
+                                // Do not start a new coroutine here, just update the start time
+                                startTime = System.currentTimeMillis()
+                            }
+                            wordsTyped = wordCount
+                        }
+                    }
+                } else {
+                    Text("You Win!")
+                    Button(
+                        onClick = { startNewRace() }
+                    ) {
+                        Text("Start New Race")
+                    }
                 }
-            }
 
-            Text("Words typed: $wordsTyped / ${totalWords}")
-            Text("WPM: $wpm")
+                Text("Words typed: $wordsTyped / ${totalWords}")
+                Text("WPM: $wpm")
 
-            if (youWin) {
-                Spacer(modifier = Modifier.height(50.dp))
-                Text("Challenge a Friend to the Same Race:")
-                Spacer(modifier = Modifier.height(20.dp))
-                InviteFriends()
+                if (youWin) {
+                    Spacer(modifier = Modifier.height(50.dp))
+                    Text("Challenge a Friend to the Same Race:")
+                    Spacer(modifier = Modifier.height(20.dp))
+                    InviteFriends()
+                }
             }
 
         }

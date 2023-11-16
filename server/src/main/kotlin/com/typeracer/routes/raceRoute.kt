@@ -7,12 +7,36 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Route.raceRoutes() {
+
+    // get race by raceId
+    get("/getRace") {
+        val raceID = call.parameters["raceID"]?.toIntOrNull()
+        print(raceID)
+        if (raceID != null) {
+            val race = transaction {
+                Races.select { Races.raceID eq raceID }.map {
+                    Race(
+                        it[Races.raceID],
+                        it[Races.userID],
+                        it[Races.textID],
+                        it[Races.date],
+                        it[Races.wpm]
+                    )
+                }
+            }
+            call.respondText(Json.encodeToString(race[0].textID))
+        } else {
+            call.respondText("Invalid raceID parameter", status = HttpStatusCode.BadRequest)
+        }
+    }
 
     // get race by userID
     get("/races") {
