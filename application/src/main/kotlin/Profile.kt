@@ -25,63 +25,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 
-
-
-@Composable
-fun ProfileScreen() {
-
-    // we want to call a suspending function to query the data
-    // we need to do this from a coroutine scope
-    val coroutinescope = rememberCoroutineScope()
-    var queryResults by remember { mutableStateOf("")}
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var isSignInMode by remember { mutableStateOf(true) }
-    var isWelcomeModalVisible by remember { mutableStateOf(true) }
-
-    // the actual UI, the button just calls the query above
-    MaterialTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-//            if (isWelcomeModalVisible) {
-//                WelcomeModal(onDismiss = { isWelcomeModalVisible = false })
-//            }
-
-            SignUpPrompt(
-                username = username,
-                password = password,
-                onUsernameChange = { username = it },
-                onPasswordChange = { password = it },
-                isSignInMode = isSignInMode
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Button(onClick = { runQueryOnClick() }) {
-                    Text(if (isSignInMode) "Sign In" else "Sign Up")
-                }
-
-                Button(onClick = { isSignInMode = !isSignInMode }) {
-                    Text(if (isSignInMode) "Switch to Sign Up" else "Switch to Sign In")
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            BugReportForm { bugDescription ->
-                println("Bug Report: $bugDescription")
-            }
-        }
-    }
-}
-
 @Composable
 fun SignUpPrompt(
     username: String,
