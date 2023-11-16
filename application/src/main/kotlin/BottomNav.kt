@@ -25,11 +25,6 @@ sealed class BottomNavScreen(
         icon = Icons.Default.Home
     )
 
-    object Profile : BottomNavScreen(
-        title = "Profile",
-        icon = Icons.Default.Person
-    )
-
     object Settings : BottomNavScreen(
         title = "Settings",
         icon = Icons.Default.Settings
@@ -45,30 +40,3 @@ sealed class BottomNavScreen(
         icon = Icons.Default.Favorite
     )
 }
-
-//@Composable
-//fun HomeScreen() {
-//
-//    fun main() = application {
-//        Window(onCloseRequest = ::exitApplication) {
-//            App()
-//        }
-//    }
-
-
-
-//@Composable
-//fun ProfileScreen() {
-////    Text(text = "Profile Screen Content")
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color.Blue),
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Text(
-//            text = "PROFILE",
-//            color = Color.White
-//        )
-//    }
-//}

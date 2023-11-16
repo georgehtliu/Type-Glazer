@@ -109,7 +109,7 @@ fun App(
 
 @Composable
 fun ShowMainScreens(onLogout: () -> Unit) {
-    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Profile, BottomNavScreen.Settings, BottomNavScreen.Data, BottomNavScreen.MyChallenges)
+    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Settings, BottomNavScreen.Data, BottomNavScreen.MyChallenges)
     var selected by remember { mutableStateOf(screens.first()) }
 
     Scaffold(
@@ -129,7 +129,6 @@ fun ShowMainScreens(onLogout: () -> Unit) {
         content = {
             when (selected) {
                 BottomNavScreen.Home -> HomeScreen(UserState.currentUser.userId)
-                BottomNavScreen.Profile -> ProfileScreen()
                 BottomNavScreen.Settings -> SettingsScreen(onLogout)
                 BottomNavScreen.Data -> DataTable()
                 BottomNavScreen.MyChallenges -> MyChallenges()
@@ -146,7 +145,6 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
     var isSignInMode by remember { mutableStateOf(true) }
     var loginStatus by remember { mutableStateOf(LoginStatus.NONE) }
     var errorMessage by remember { mutableStateOf("") }
-    var loginuserId by remember {mutableStateOf(-1)}
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -225,6 +223,7 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                     ) {
                         Button(onClick = {
                             isSignInMode = !isSignInMode
+                            loginStatus = LoginStatus.NONE
                         }) {
                             if (isSignInMode) {
                                 Text("Sign Up as a new user")
