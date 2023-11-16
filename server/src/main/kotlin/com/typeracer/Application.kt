@@ -78,6 +78,14 @@ fun Application.module() {
             it[content] = "Sample text for typing"
         }
 
+        Texts.insert {
+            it[content] = "The quick brown fox jumped over the lazy dog and cat and mouse and fish"
+        }
+
+        Texts.insert {
+            it[content] = "The sun is shining, the birds are singing, and the flowers are blooming"
+        }
+
         Challenges.insert {
             it[textID] = 1
             it[fromUserID] = 1
