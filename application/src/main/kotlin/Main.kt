@@ -131,7 +131,7 @@ fun ShowMainScreens(onLogout: () -> Unit) {
                 BottomNavScreen.Home -> HomeScreen(UserState.currentUser.userId)
                 BottomNavScreen.Settings -> SettingsScreen(onLogout)
                 BottomNavScreen.Data -> DataTable(UserState.currentUser.userId)
-                BottomNavScreen.MyChallenges -> MyChallenges()
+                BottomNavScreen.MyChallenges -> MyChallenges(UserState.currentUser.userId)
             }
         }
     )

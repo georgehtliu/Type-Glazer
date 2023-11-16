@@ -9,11 +9,22 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import com.typeracer.data.schema.Users
 import io.ktor.http.*
 import io.ktor.server.response.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.deleteWhere
+
+@Serializable
+data class ChallengeWithUsername(
+    val challengeID: Int,
+    val fromUsername: String,
+    val toUserID: Int,
+    val textID: Int,
+    val raceID: Int
+)
+
 
 fun Route.challengeRoutes() {
 
@@ -58,25 +69,37 @@ fun Route.challengeRoutes() {
         }
     }
 
+    // Function to retrieve the username by user ID
+    fun getUsernameById(userId: Int): String {
+        return transaction {
+            Users.select { Users.userID eq userId }
+                .singleOrNull()
+                ?.let { it[Users.username] }
+                ?: "Unknown User"
+        }
+    }
+
     // get all challenges where toUserID is equal to the url param
     get("/challenges/get") {
         val userId = call.parameters["userId"]?.toIntOrNull()
 
+        println(userId)
+
         if (userId != null) {
             try {
-                val challenges = transaction {
+                val challengesWithUsername = transaction {
                     Challenges.select { Challenges.toUserID eq userId }
                         .map {
-                            Challenge(
+                            ChallengeWithUsername(
                                 it[Challenges.challengeID],
-                                it[Challenges.textID],
-                                it[Challenges.fromUserID],
+                                getUsernameById(it[Challenges.fromUserID]),
                                 it[Challenges.toUserID],
+                                it[Challenges.textID],
                                 it[Challenges.raceID]
                             )
                         }
                 }
-                call.respondText(Json.encodeToString(challenges), ContentType.Application.Json)
+                call.respondText(Json.encodeToString(challengesWithUsername), ContentType.Application.Json)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.InternalServerError, "Error retrieving challenges: ${e.localizedMessage}")
             }
@@ -84,6 +107,7 @@ fun Route.challengeRoutes() {
             call.respond(HttpStatusCode.BadRequest, "Invalid user ID parameter")
         }
     }
+
 
     // delete challenge when complete
     delete("/challenges/delete") {

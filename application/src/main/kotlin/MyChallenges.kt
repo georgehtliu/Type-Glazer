@@ -7,25 +7,91 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
-data class ChallengeData(val fromUser: String, val raceId: String)
+@Serializable
+data class ChallengeResponse(val challengeID: Int, val fromUsername: String, val toUserID: Int, val textID: Int, val raceID: Int)
+
+@Serializable
+data class ChallengeListResponse(val challenges: List<ChallengeResponse>)
+
+@Serializable
+data class ChallengeInfo(val fromUsername: String, val textID: Int)
+
+var ChallengeList = mutableListOf<ChallengeInfo>()
+
+suspend fun getChallenges(currentuserId: Int): Boolean {
+    val getChallengesEndpoint = "http://localhost:5050/challenges/get?userId=$currentuserId"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
+
+    try {
+
+        println("sending request")
+
+        val responseBody: String = client.get(getChallengesEndpoint).body()
+
+        println(responseBody)
+
+        val challengeListResponse: ChallengeListResponse = Json.decodeFromString("""{
+    "challenges": $responseBody
+}""")
+        println(challengeListResponse)
+        val challengeResList: List<ChallengeResponse> = challengeListResponse.challenges
+        println(challengeResList)
+
+        // Sort the raceResList based on raceID
+        val sortedChallengeResList = challengeResList.sortedBy { it.challengeID }
+
+        println(sortedChallengeResList)
+
+        ChallengeList = sortedChallengeResList.mapIndexed { index, challengeResponse ->
+            ChallengeInfo(challengeResponse.fromUsername, challengeResponse.textID)
+        }.toMutableList()
+
+        println(ChallengeList)
+
+        client.close()
+        return true
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+        return false
+    }
+}
 
 
 @Composable
-fun MyChallenges() {
+fun MyChallenges(currentuserId: Int) {
     // Dummy data for testing
-    val challenges = remember { mutableStateListOf(
-        ChallengeData("User1", "Race123"),
-        ChallengeData("User2", "Race456"),
-        ChallengeData("User3", "Race789")
-    ) }
+
+    var challenges by remember { mutableStateOf(listOf<ChallengeInfo>()) }
+
+    LaunchedEffect(Unit) {
+        val success = getChallenges(currentuserId)
+        if (success) {
+            println("here are the challenges")
+            println(ChallengeList)
+            challenges = ChallengeList
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -42,7 +108,7 @@ fun MyChallenges() {
 }
 
 @Composable
-fun ChallengeRow(challenge: ChallengeData) {
+fun ChallengeRow(challenge: ChallengeInfo) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,9 +116,9 @@ fun ChallengeRow(challenge: ChallengeData) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Display challenge details
-        Text(text = "From: ${challenge.fromUser}")
+        Text(text = "From: ${challenge.fromUsername}")
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text = "Race ID: ${challenge.raceId}")
+        Text(text = "Race ID: ${challenge.textID}")
 
         // Accept and reject buttons
         Spacer(modifier = Modifier.weight(1f))
