@@ -100,16 +100,15 @@ fun main() = application {
 fun App(
 ) {
     var onIntroScreen by remember { mutableStateOf(true) }
-
     if (onIntroScreen) {
         IntroScreen(onDismiss = { onIntroScreen = false }, UserState.currentUser)
     } else {
-        ShowMainScreens()
+        ShowMainScreens(onLogout = { onIntroScreen = true; UserState.currentUser.userId = -1})
     }
 }
 
 @Composable
-fun ShowMainScreens() {
+fun ShowMainScreens(onLogout: () -> Unit) {
     val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Profile, BottomNavScreen.Settings, BottomNavScreen.Data, BottomNavScreen.MyChallenges)
     var selected by remember { mutableStateOf(screens.first()) }
 
@@ -131,7 +130,7 @@ fun ShowMainScreens() {
             when (selected) {
                 BottomNavScreen.Home -> HomeScreen(UserState.currentUser.userId)
                 BottomNavScreen.Profile -> ProfileScreen()
-                BottomNavScreen.Settings -> SettingsScreen()
+                BottomNavScreen.Settings -> SettingsScreen(onLogout)
                 BottomNavScreen.Data -> DataTable()
                 BottomNavScreen.MyChallenges -> MyChallenges()
             }
