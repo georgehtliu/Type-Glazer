@@ -1,12 +1,17 @@
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.ktor.client.*
@@ -14,14 +19,9 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.Json.Default.decodeFromString
-
 
 data class RaceInfo(val raceNumber: Int, val date: String, val wpm: Int)
 
@@ -78,44 +78,58 @@ fun DataTable(currentuserId: Int) {
         }
     }
 
-    LazyColumn(
-        Modifier.padding(8.dp)
-    ) {
-        item {
-            Row (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                RowItem("Race Number", true)
-                RowItem("Date", true)
-                RowItem("WPM", true)
-            }
+    MaterialTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // Display the time graph
+            TimeGraphCanvas(localRaceInfoList)
 
-            Divider(
-                color = Color.LightGray
-            )
-        }
+            Spacer(modifier = Modifier.height(16.dp))
 
-        items(localRaceInfoList) { raceInfo ->
-            Row (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            // Display the table
+            LazyColumn(
+                Modifier.padding(8.dp)
             ) {
-                RowItem(raceInfo.raceNumber.toString(), false)
-                RowItem(raceInfo.date, false)
-                RowItem(raceInfo.wpm.toString(), false)
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        RowItem("Race Number", true)
+                        RowItem("Date", true)
+                        RowItem("WPM", true)
+                    }
+
+                    Divider(
+                        color = Color.LightGray
+                    )
+                }
+
+                items(localRaceInfoList) { raceInfo ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        RowItem(raceInfo.raceNumber.toString(), false)
+                        RowItem(raceInfo.date, false)
+                        RowItem(raceInfo.wpm.toString(), false)
+                    }
+                    Divider(
+                        color = Color.LightGray
+                    )
+                }
             }
-            Divider(
-                color = Color.LightGray
-            )
         }
     }
 }
 
 @Composable
 fun RowScope.RowItem(text: String, title: Boolean) {
-    val weight : Float = 0.2f
-    Text (
+    val weight: Float = 0.2f
+    Text(
         text = text,
         fontWeight = if (title) FontWeight.Bold else FontWeight.Normal,
         textAlign = TextAlign.Center,
@@ -123,4 +137,29 @@ fun RowScope.RowItem(text: String, title: Boolean) {
     )
 }
 
+@Composable
+fun TimeGraphCanvas(raceData: List<RaceInfo>) {
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .background(Color.LightGray)
+    ) {
+        val maxX = raceData.size.toFloat()
+        val maxY = raceData.maxByOrNull { it.wpm }?.wpm?.toFloat() ?: 1f
 
+        // Draw x-axis
+        drawLine(start = Offset(0f, size.height), end = Offset(size.width, size.height), color = Color.Black)
+
+        // Draw y-axis
+        drawLine(start = Offset(0f, 0f), end = Offset(0f, size.height), color = Color.Black)
+
+        // Draw data points
+        raceData.forEachIndexed { index, data ->
+            val x = (index + 1).toFloat() / maxX * size.width
+            val y = size.height - (data.wpm.toFloat() / maxY * size.height)
+
+            drawCircle(color = Color.Blue, radius = 8f, center = Offset(x, y))
+        }
+    }
+}
