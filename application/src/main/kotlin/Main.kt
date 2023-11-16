@@ -8,7 +8,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -31,6 +30,10 @@ enum class LoginStatus {
     NONE,
     SUCCESS,
     FAILURE
+}
+
+object UserState {
+    var currentUser = userId(-1)
 }
 
 suspend fun login(username: String, password: String, loginuserId: userId): Boolean {
@@ -97,19 +100,18 @@ fun main() = application {
 fun App(
 ) {
     var onIntroScreen by remember { mutableStateOf(true) }
-    var currentUser = userId(-1)
+
     if (onIntroScreen) {
-        IntroScreen(onDismiss = {onIntroScreen = false}, currentUser)
+        IntroScreen(onDismiss = { onIntroScreen = false }, UserState.currentUser)
     } else {
         ShowMainScreens()
     }
 }
 
 @Composable
-fun ShowMainScreens(
-) {
+fun ShowMainScreens() {
     val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Profile, BottomNavScreen.Settings, BottomNavScreen.Data, BottomNavScreen.MyChallenges)
-    var selected by remember{ mutableStateOf(screens.first()) }
+    var selected by remember { mutableStateOf(screens.first()) }
 
     Scaffold(
         bottomBar = {
@@ -122,11 +124,12 @@ fun ShowMainScreens(
                         onClick = { selected = screen },
                         modifier = Modifier.padding(8.dp)
                     )
-                } }
+                }
+            }
         },
         content = {
             when (selected) {
-                BottomNavScreen.Home -> HomeScreen()
+                BottomNavScreen.Home -> HomeScreen(UserState.currentUser.userId)
                 BottomNavScreen.Profile -> ProfileScreen()
                 BottomNavScreen.Settings -> SettingsScreen()
                 BottomNavScreen.Data -> DataTable()
