@@ -1,19 +1,18 @@
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -84,11 +83,6 @@ fun DataTable(currentuserId: Int) {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Display the time graph
-            TimeGraphCanvas(localRaceInfoList)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Display the table
             LazyColumn(
                 Modifier.padding(8.dp)
@@ -122,6 +116,9 @@ fun DataTable(currentuserId: Int) {
                     )
                 }
             }
+            // Display the time graph
+            Spacer(modifier = Modifier.height(16.dp))
+            TimeGraphCanvas(localRaceInfoList)
         }
     }
 }
@@ -139,27 +136,67 @@ fun RowScope.RowItem(text: String, title: Boolean) {
 
 @Composable
 fun TimeGraphCanvas(raceData: List<RaceInfo>) {
+    val textMeasurer = rememberTextMeasurer()
+
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-            .background(Color.LightGray)
     ) {
         val maxX = raceData.size.toFloat()
         val maxY = raceData.maxByOrNull { it.wpm }?.wpm?.toFloat() ?: 1f
 
+        val paddingStart = 40f
+        val paddingEnd = 40f
+        val plotWidth = size.width - paddingStart - paddingEnd
+
         // Draw x-axis
-        drawLine(start = Offset(0f, size.height), end = Offset(size.width, size.height), color = Color.Black)
+        drawLine(start = Offset(paddingStart, size.height), end = Offset(size.width - paddingEnd, size.height), color = Color.Black)
 
         // Draw y-axis
-        drawLine(start = Offset(0f, 0f), end = Offset(0f, size.height), color = Color.Black)
+        drawLine(start = Offset(paddingStart, 0f), end = Offset(paddingStart, size.height), color = Color.Black)
 
         // Draw data points
         raceData.forEachIndexed { index, data ->
-            val x = (index + 1).toFloat() / maxX * size.width
-            val y = size.height - (data.wpm.toFloat() / maxY * size.height)
+            val x = paddingStart + ((index.toFloat() / (maxX - 1)) * plotWidth)
+            val y = size.height - ((data.wpm.toFloat() / maxY) * (size.height - 20))
 
-            drawCircle(color = Color.Blue, radius = 8f, center = Offset(x, y))
+            drawCircle(color = Color.Blue, radius = 3f, center = Offset(x, y))
+
+            val dateText =
+                textMeasurer.measure(
+                    AnnotatedString("Race ${data.raceNumber}"),
+                    TextStyle(fontSize = 10.sp)
+                )
+
+            drawText(
+                textLayoutResult = dateText,
+                topLeft = Offset(x, size.height + 16f),
+            )
+
+            val yLabelInterval = maxY / 5
+            for (i in 0..5) {
+                val label = (yLabelInterval * i).toInt().toString()
+                val labelLayout = textMeasurer.measure(
+                    AnnotatedString(label),
+                    TextStyle(fontSize = 10.sp)
+                )
+                // val mark = size.height - (i * (size.height / 5))
+                val mark = size.height - ((i * yLabelInterval / maxY) * (size.height - 20))
+                drawText(
+                    textLayoutResult = labelLayout,
+                    topLeft = Offset(paddingStart - 20f, mark - 8f)
+                )
+
+                drawLine(start = Offset(paddingStart - 5f, mark), end = Offset(paddingStart, mark), color = Color.Black)
+            }
+
+            if (index > 0) {
+                val prevX = paddingStart + (((index - 1).toFloat() / (maxX - 1)) * plotWidth)
+                val prevY = size.height - ((raceData[index - 1].wpm.toFloat() / maxY) * (size.height - 20))
+                drawLine(start = Offset(prevX, prevY), end = Offset(x, y), color = Color.Blue)
+            }
+
         }
     }
 }
