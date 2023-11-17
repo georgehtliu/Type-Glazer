@@ -1,6 +1,6 @@
 package com.typeracer.routes
 import Challenge
-import com.typeracer.data.model.SendChallengeRequest
+import com.typeracer.data.model.NewChallenge
 import com.typeracer.data.schema.Challenges
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -29,14 +29,13 @@ fun Route.challengeRoutes() {
 
     post("/challenges/send") {
         try {
-            val sendChallengeRequest = call.receive<SendChallengeRequest>()
+            val sendChallengeRequest = call.receive<NewChallenge>()
             val fromUserID = sendChallengeRequest.fromUserID
             val toUsername = sendChallengeRequest.toUsername
             val textID = sendChallengeRequest.textID
             val raceID = sendChallengeRequest.raceID
 
             print("THIS IS THE TEXT ID")
-            print(textID)
 
             // first obtain toUserID
             val toUserID = transaction {
