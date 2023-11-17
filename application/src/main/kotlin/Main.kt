@@ -26,6 +26,8 @@ data class SignupRequest(val username: String, val email: String, val password: 
 
 data class userId(var userId: Int)
 
+data class challengeAcceptedTextId(var textId: Int)
+
 enum class LoginStatus {
     NONE,
     SUCCESS,
@@ -34,6 +36,7 @@ enum class LoginStatus {
 
 object UserState {
     var currentUser = userId(-1)
+    var acceptedChallenge = challengeAcceptedTextId(-1)
 }
 
 suspend fun login(username: String, password: String, loginuserId: userId): Boolean {
@@ -128,10 +131,10 @@ fun ShowMainScreens(onLogout: () -> Unit) {
         },
         content = {
             when (selected) {
-                BottomNavScreen.Home -> HomeScreen(UserState.currentUser.userId)
+                BottomNavScreen.Home -> HomeScreen(UserState)
                 BottomNavScreen.Settings -> SettingsScreen(onLogout)
-                BottomNavScreen.Data -> DataTable(UserState.currentUser.userId)
-                BottomNavScreen.MyChallenges -> MyChallenges()
+                BottomNavScreen.Data -> DataTable(UserState)
+                BottomNavScreen.MyChallenges -> MyChallenges(onAccept = {selected = BottomNavScreen.Home}, UserState)
             }
         }
     )

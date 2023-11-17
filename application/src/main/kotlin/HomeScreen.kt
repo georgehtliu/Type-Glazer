@@ -1,16 +1,13 @@
-
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -21,53 +18,29 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import java.time.LocalDate
+import kotlinx.serialization.json.Json
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Serializable
 data class RaceResultRequest(val userID: Int, val textID: Int, val date: String, val wpm: Int)
 
 @Serializable
-data class SendChallengeRequest(val fromUserID: Int, val toUsername: String, val textID: Int, val raceID: Int)
+data class ChallengeRequest(val fromUserID: Int, val toUsername: String, val textID: Int, val raceID: Int)
+@Serializable
+data class submitRaceResponse(val raceID: Int, val userID: Int, val textID: Int)
 
 @Composable
-fun HomeScreen(currentuserId: Int
+fun HomeScreen(currentUserState: UserState
 ) {
-    Game(currentuserId)
+    Game(currentUserState)
 }
-
-suspend fun submitChallenge(fromUserID: Int, toUsername: String, textID: Int, raceID: Int): Boolean {
-    val sendChallengeEndpoint = "http://localhost:5050/challenges/send"
-    val client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
-        }
-    }
-
-    try {
-        val response: HttpResponse = client.post(sendChallengeEndpoint) {
-            contentType(ContentType.Application.Json)
-            setBody(SendChallengeRequest(fromUserID, toUsername, textID, raceID))
-        }
-
-        // Close the client after the request
-        client.close()
-
-        // Handle the response if needed
-        return response.status.value in 200..299
-    } catch (e: Exception) {
-        // Handle exceptions if needed
-        return false
-    }
-}
-
 
 @Composable
-fun InviteFriends() {
+fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
     var text by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var iserror by remember { mutableStateOf(false) }
-
     val coroutineScope = rememberCoroutineScope()
 
     Row (
@@ -97,30 +70,18 @@ fun InviteFriends() {
 
         Button(
             onClick = {
-                if (text.isNotBlank()) {
-                    // Fake data for fromUserID, textID, raceID
-                    val fromUserID = 1
-                    val toUsername = text
-                    val textID = 1
-                    val raceID = 456
-                    message = "User @$text has been invited!"
-                    text = ""
-                    iserror = false
-
-
-
-                    // Call the function to submit the challenge request
-                    coroutineScope.launch(Dispatchers.Default) {
-                        val success = submitChallenge(fromUserID, toUsername, textID, raceID)
-                        if (success) {
-                            print("[SUCCESSFUL] SENDING CHALLENGE")
-                        } else {
-                            print("[FAILED] SENDING CHALLENGE")
-                        }
+                coroutineScope.launch(Dispatchers.Default) {
+                    val success = submitChallenge(currentuserID, text, currenttextID, currentraceID)
+                    if (success) {
+                        print("[SUCCESSFUL] SUBMITTING CHALLENGE")
+                        message = "User @$text has been invited!"
+                        text = ""
+                        iserror = false
+                    } else {
+                        print("[FAILED] SUBMITTING CHALLENGE")
+                        message = "Invalid Username"
+                        iserror = true
                     }
-                } else {
-                    message = "Invalid Username"
-                    iserror = true
                 }
             }
         ) {
@@ -130,28 +91,83 @@ fun InviteFriends() {
 }
 
 @Composable
-fun Game(currentuserId: Int) {
+fun Game(currentUserState: UserState) {
     MaterialTheme {
         var progress by remember { mutableStateOf(0.0f) }
-        var passages by remember {
-            mutableStateOf(
-                listOf(
-                    "The quick brown fox jumped over the lazy dog and cat and mouse and fish",
-                    "The sun is shining, the birds are singing, and the flowers are blooming",
-                    "Education is the most powerful weapon which you can use to change the world",
-                    "Happiness is not something ready-made. It comes from your own actions",
-                    "You miss 100% of the shots you don't take.",
-                    "The road less traveled is often the path to success",
-                )
-            )
-        }
+        val passages: HashMap<Int, String> = HashMap<Int, String>()
+        passages[0] = "The quick brown fox jumped over the lazy dog and cat and mouse and fish"
+        passages[1] = "The sun is shining, the birds are singing, and the flowers are blooming"
+        passages[2] = "Education is the most powerful weapon which you can use to change the world"
+        passages[3] = "Happiness is not something ready-made. It comes from your own actions"
+        passages[4] = "You miss 100% of the shots you don't take."
+        passages[5] = "The road less traveled is often the path to success"
+        passages[6] = "Success is not the key to happiness. Happiness is the key to success. If you love what you are doing, you will be successful."
+        passages[7] = "The only limit to our realization of tomorrow will be our doubts of today."
+        passages[8] = "In the middle of every difficulty lies opportunity."
+        passages[9] = "The only way to do great work is to love what you do."
+        passages[10] = "Believe you can and you're halfway there."
+        passages[11] = "Don't watch the clock; do what it does. Keep going."
+        passages[12] = "The future belongs to those who believe in the beauty of their dreams."
+        passages[13] = "It does not matter how slowly you go as long as you do not stop."
+        passages[14] = "The secret of getting ahead is getting started."
+        passages[15] = "The harder you work for something, the greater you'll feel when you achieve it."
+        passages[16] = "Talent wins games, but teamwork and intelligence win championships."
+        passages[17] = "The strength of the team is each individual member. The strength of each member is the team."
+        passages[18] = "Soccer is simple, but it is difficult to play simple."
+        passages[19] = "In football, the worst blindness is only seeing the ball."
+        passages[20] = "The secret of food lies in memory – of thinking and then knowing what the taste of cinnamon or steak is."
+        passages[21] = "First we eat, then we do everything else."
+        passages[22] = "The only bad workout is the one that didn't happen."
+        passages[23] = "The last three or four reps is what makes the muscle grow. This area of pain divides a champion from someone who is not a champion."
+        passages[24] = "If you think lifting weights is dangerous, try being weak. Being weak is dangerous."
+        passages[25] = "The only place where success comes before work is in the dictionary."
+        passages[26] = "The clock is ticking. Are you becoming the person you want to be?"
+        passages[27] = "Whether you think you can, or you think you can't, you're right."
+        passages[28] = "The successful warrior is the average man, with laser-like focus."
+        passages[29] = "Don't limit your challenges. Challenge your limits."
+        passages[30] = "Each new day is a new opportunity to improve yourself. Take it and make the most of it."
+        passages[31] = "In the world of programming, simplicity and clarity are the key to efficient code."
+        passages[32] = "Music gives a soul to the universe, wings to the mind, flight to the imagination and life to everything."
+        passages[33] = "Art is not what you see, but what you make others see."
+        passages[34] = "The beauty of nature will leave you speechless once you start traveling, but it will make you a storyteller once you finish traveling."
+        passages[35] = "Photography is the story I fail to put into words."
+        passages[36] = "Life is like riding a bicycle. To keep your balance, you must keep moving."
+        passages[37] = "The journey of a thousand miles begins with one step."
+        passages[38] = "In the end, it's not the years in your life that count. It's the life in your years."
+        passages[39] = "Life is really simple, but we insist on making it complicated."
+        passages[40] = "In three words I can sum up everything I've learned about life: it goes on."
+        passages[41] = "Life is what happens when you're busy making other plans."
+        passages[42] = "Many of life's failures are people who did not realize how close they were to success when they gave up."
+        passages[43] = "If you want to live a happy life, tie it to a goal, not to people or things."
+        passages[44] = "Never let the fear of striking out keep you from playing the game."
+        passages[45] = "The purpose of our lives is to be happy."
+        passages[46] = "Life is never fair, and perhaps it is a good thing for most of us that it is not."
+        passages[47] = "The biggest adventure you can take is to live the life of your dreams."
+        passages[48] = "Life is short, and it's up to you to make it sweet."
+        passages[49] = "Life doesn't require that we be the best, only that we try our best."
+        passages[50] = "I have found that if you love life, life will love you back."
+        passages[51] = "Life is really simple, but men insist on making it complicated."
+        passages[52] = "You have within you right now, everything you need to deal with whatever the world can throw at you."
+        passages[53] = "Life is a succession of lessons which must be lived to be understood."
+        passages[54] = "My mission in life is not merely to survive, but to thrive; and to do so with some passion, some compassion, some humor, and some style."
+        passages[55] = "Life is like a coin. You can spend it any way you wish, but you only spend it once."
+        passages[56] = "Life is a song - sing it. Life is a game - play it. Life is a challenge - meet it. Life is a dream - realize it. Life is a sacrifice - offer it. Life is love - enjoy it."
+        passages[57] = "To live is the rarest thing in the world. Most people exist, that is all."
+        passages[58] = "Life is what we make it, always has been, always will be."
+        passages[59] = "Life is either a daring adventure or nothing at all."
+        passages[60] = "The good life is one inspired by love and guided by knowledge."
+
+
+
         var currentPassageIndex by remember { mutableStateOf(0) }
         var userPosition by remember { mutableStateOf(0) }
         var startTime by remember { mutableStateOf(0L) }
         var wpm by remember { mutableStateOf(0) }
         var youWin by remember { mutableStateOf(false) }
+        var showStartButton by remember { mutableStateOf(true) }
         var wordsTyped by remember { mutableStateOf(0) }
         var totalWords by remember { mutableStateOf(0) }
+        var raceID by remember { mutableStateOf(-1) }
         val coroutineScope = rememberCoroutineScope()
 
         fun getTotalWords(passage: String): Int {
@@ -159,37 +175,42 @@ fun Game(currentuserId: Int) {
             return words.size
         }
 
+        fun getPassageIndex(challengeTextId : Int): Int {
+            if (challengeTextId != -1) {
+                return challengeTextId
+            } else {
+                return (0 until passages.size).random()
+            }
+
+        }
+
         fun startNewRace() {
-            currentPassageIndex = (0 until passages.size).random()
+            currentPassageIndex = getPassageIndex(currentUserState.acceptedChallenge.textId)
             userPosition = 0
             startTime = System.currentTimeMillis() // Set the start time when starting a new race
             wpm = 0
             youWin = false
             wordsTyped = 0
-            totalWords = getTotalWords(passages[currentPassageIndex])
+            totalWords = passages[currentPassageIndex]?.let { getTotalWords(it) }!!
         }
 
-        // Start a new race when the composable is first displayed
-        if (currentPassageIndex == 0 && userPosition == 0) {
-            startNewRace()
-        }
-
-        if (userPosition >= passages[currentPassageIndex].length && !youWin) {
+        if (userPosition >= passages[currentPassageIndex]?.length!! && !youWin) {
             wordsTyped += 1
             youWin = true
 
             // Call the function to submit the post request
             coroutineScope.launch(Dispatchers.Default) {
-                val success = submitRaceResult(currentuserId, wpm)
-                if (success) {
+                val success = submitRaceResult(currentUserState.currentUser.userId, wpm, currentPassageIndex)
+                if (success != -1) {
                     print("[SUCCESSFUL] SUBMITTING RACE")
+                    raceID = success
                 } else {
                     print("[FAILED] SUBMITTING RACE")
                 }
             }
         }
 
-        progress = userPosition.toFloat() / passages[currentPassageIndex].length
+        progress = userPosition.toFloat() / passages[currentPassageIndex]?.length!!
 
         if (startTime > 0) {
             val elapsedTime = (System.currentTimeMillis() - startTime) / 60000.0
@@ -200,47 +221,51 @@ fun Game(currentuserId: Int) {
             }
         }
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(modifier = Modifier.size(100.dp))
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,) {
 
-            ProgressBar(
-                color = Color.Black,
-                dotRadius = 2f,
-                spacing = 8f,
-                lineWidth = 2f,
-                progress = progress
-            )
-
-            Spacer(modifier = Modifier.size(30.dp))
-
-            if (!youWin) {
-                Typer(
-                    passage = passages[currentPassageIndex]
-                ) { typedCharacters, newStartTime, wordCount ->
-                    userPosition = typedCharacters
-                    if (newStartTime == 0L) {
-                        // Do not start a new coroutine here, just update the start time
-                        startTime = System.currentTimeMillis()
-                    }
-                    wordsTyped = wordCount
+            if (showStartButton) {
+                Button(
+                    onClick = { startNewRace(); showStartButton = false; currentUserState.acceptedChallenge.textId = -1 }
+                ) {
+                    Text("Start Race")
                 }
             } else {
-                Text("You Win!")
-                Button(
-                    onClick = { startNewRace() }
-                ) {
-                    Text("Start New Race")
+                ProgressBar(
+                    color = Color.Black,
+                    progress = progress
+                )
+
+                Spacer(modifier = Modifier.size(30.dp))
+
+                if (!youWin) {
+                    passages[currentPassageIndex]?.let {
+                        Typer(
+                            passage = it,
+                        ) { typedCharacters, newStartTime, wordCount ->
+                            userPosition = typedCharacters
+                            if (newStartTime == 0L) {
+                                // Do not start a new coroutine here, just update the start time
+                                startTime = System.currentTimeMillis()
+                            }
+                            wordsTyped = wordCount
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = { startNewRace() }
+                    ) {
+                        Text("Start New Race")
+                    }
                 }
-            }
 
-            Text("Words typed: $wordsTyped / ${totalWords}")
-            Text("WPM: $wpm")
+                Text("WPM: $wpm")
 
-            if (youWin) {
-                Spacer(modifier = Modifier.height(50.dp))
-                Text("Challenge a Friend to the Same Race:")
-                Spacer(modifier = Modifier.height(20.dp))
-                InviteFriends()
+                if (youWin) {
+                    Spacer(modifier = Modifier.height(50.dp))
+                    Text("Challenge a Friend to the Same Race:")
+                    Spacer(modifier = Modifier.height(20.dp))
+                    InviteFriends(currentUserState.currentUser.userId, currentPassageIndex, raceID)
+                }
             }
 
         }
@@ -248,9 +273,8 @@ fun Game(currentuserId: Int) {
 }
 
 
-
-suspend fun submitRaceResult(currentuserId: Int, wpm: Int): Boolean {
-    val insertRaceEndpoint = "http://localhost:5050/insertRace"
+suspend fun submitChallenge(currentuserId: Int, challengeuserName: String, currenttextID: Int, currentraceID: Int): Boolean {
+    val insertChallengeEndpoint = "http://localhost:5050/challenges/send"
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()
@@ -258,25 +282,19 @@ suspend fun submitRaceResult(currentuserId: Int, wpm: Int): Boolean {
     }
 
     try {
-        // TODO : replace with actual textId
-        val userID = currentuserId
-        val textID = 2
-        val currentDate = LocalDate.now()
-        // Define the desired date format
-        val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val date = currentDate.format(dateFormat)
+        val fromUserID = currentuserId
+        val toUsername = challengeuserName
+        val textID = currenttextID
+        val raceID = currentraceID
 
-        val response: HttpResponse = client.post(insertRaceEndpoint) {
+
+        val response: HttpResponse = client.post(insertChallengeEndpoint) {
             contentType(ContentType.Application.Json)
-
-            println(RaceResultRequest(userID, textID, date, wpm))
-
-            setBody(RaceResultRequest(userID, textID, date, wpm))
+            setBody(ChallengeRequest(fromUserID, toUsername, textID, raceID))
         }
 
         // Close the client after the request
         client.close()
-
         // Handle the response if needed
         return response.status.value in 200..299
     } catch (e: Exception) {
@@ -285,30 +303,51 @@ suspend fun submitRaceResult(currentuserId: Int, wpm: Int): Boolean {
     }
 }
 
+suspend fun submitRaceResult(currentuserId: Int, wpm: Int, currenttextID: Int): Int {
+    val insertRaceEndpoint = "http://localhost:5050/insertRace"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    try {
+        val userID = currentuserId
+        val textID = currenttextID
+        val currentDateTime = LocalDateTime.now()
+// Define the desired date format
+        val dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val dateTime = currentDateTime.format(dateTimeFormat)
+        val requestBody = RaceResultRequest(userID, textID, dateTime, wpm)
+
+        val response: String = client.post(insertRaceEndpoint) {
+            contentType(ContentType.Application.Json)
+            setBody(requestBody)
+        }.bodyAsText()
+
+        // Close the client after the request
+        client.close()
+        val submitRaceResponseDecoded: submitRaceResponse = Json.decodeFromString(response)
+        // Handle the response if needed
+        return submitRaceResponseDecoded.raceID
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+        return -1
+    }
+}
+
 @Composable
 fun ProgressBar(
     color: Color = Color.Black,
-    dotRadius: Float = 2f,
-    spacing: Float = 8f,
-    lineWidth: Float = 2f,
     progress: Float
 ) {
-    Canvas(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        val startY = size.height / 2
-        val endX = size.width * progress
-        var currentX = 0f
-
-        while (currentX < endX) {
-            drawCircle(
-                color = color,
-                radius = dotRadius,
-                center = Offset(currentX, startY),
-                style = Stroke(width = lineWidth)
-            )
-            currentX += spacing
-        }
+    Column {
+        Text(text = "Progress: ${(progress * 100).toInt()}%", style = TextStyle(fontSize = 16.sp))
+        LinearProgressIndicator(
+            color = color,
+            progress = progress,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
