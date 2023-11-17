@@ -1,16 +1,13 @@
-
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -22,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Serializable
@@ -104,6 +101,63 @@ fun Game(currentUserState: UserState) {
         passages[3] = "Happiness is not something ready-made. It comes from your own actions"
         passages[4] = "You miss 100% of the shots you don't take."
         passages[5] = "The road less traveled is often the path to success"
+        passages[6] = "Success is not the key to happiness. Happiness is the key to success. If you love what you are doing, you will be successful."
+        passages[7] = "The only limit to our realization of tomorrow will be our doubts of today."
+        passages[8] = "In the middle of every difficulty lies opportunity."
+        passages[9] = "The only way to do great work is to love what you do."
+        passages[10] = "Believe you can and you're halfway there."
+        passages[11] = "Don't watch the clock; do what it does. Keep going."
+        passages[12] = "The future belongs to those who believe in the beauty of their dreams."
+        passages[13] = "It does not matter how slowly you go as long as you do not stop."
+        passages[14] = "The secret of getting ahead is getting started."
+        passages[15] = "The harder you work for something, the greater you'll feel when you achieve it."
+        passages[16] = "Talent wins games, but teamwork and intelligence win championships."
+        passages[17] = "The strength of the team is each individual member. The strength of each member is the team."
+        passages[18] = "Soccer is simple, but it is difficult to play simple."
+        passages[19] = "In football, the worst blindness is only seeing the ball."
+        passages[20] = "The secret of food lies in memory – of thinking and then knowing what the taste of cinnamon or steak is."
+        passages[21] = "First we eat, then we do everything else."
+        passages[22] = "The only bad workout is the one that didn't happen."
+        passages[23] = "The last three or four reps is what makes the muscle grow. This area of pain divides a champion from someone who is not a champion."
+        passages[24] = "If you think lifting weights is dangerous, try being weak. Being weak is dangerous."
+        passages[25] = "The only place where success comes before work is in the dictionary."
+        passages[26] = "The clock is ticking. Are you becoming the person you want to be?"
+        passages[27] = "Whether you think you can, or you think you can't, you're right."
+        passages[28] = "The successful warrior is the average man, with laser-like focus."
+        passages[29] = "Don't limit your challenges. Challenge your limits."
+        passages[30] = "Each new day is a new opportunity to improve yourself. Take it and make the most of it."
+        passages[31] = "In the world of programming, simplicity and clarity are the key to efficient code."
+        passages[32] = "Music gives a soul to the universe, wings to the mind, flight to the imagination and life to everything."
+        passages[33] = "Art is not what you see, but what you make others see."
+        passages[34] = "The beauty of nature will leave you speechless once you start traveling, but it will make you a storyteller once you finish traveling."
+        passages[35] = "Photography is the story I fail to put into words."
+        passages[36] = "Life is like riding a bicycle. To keep your balance, you must keep moving."
+        passages[37] = "The journey of a thousand miles begins with one step."
+        passages[38] = "In the end, it's not the years in your life that count. It's the life in your years."
+        passages[39] = "Life is really simple, but we insist on making it complicated."
+        passages[40] = "In three words I can sum up everything I've learned about life: it goes on."
+        passages[41] = "Life is what happens when you're busy making other plans."
+        passages[42] = "Many of life's failures are people who did not realize how close they were to success when they gave up."
+        passages[43] = "If you want to live a happy life, tie it to a goal, not to people or things."
+        passages[44] = "Never let the fear of striking out keep you from playing the game."
+        passages[45] = "The purpose of our lives is to be happy."
+        passages[46] = "Life is never fair, and perhaps it is a good thing for most of us that it is not."
+        passages[47] = "The biggest adventure you can take is to live the life of your dreams."
+        passages[48] = "Life is short, and it's up to you to make it sweet."
+        passages[49] = "Life doesn't require that we be the best, only that we try our best."
+        passages[50] = "I have found that if you love life, life will love you back."
+        passages[51] = "Life is really simple, but men insist on making it complicated."
+        passages[52] = "You have within you right now, everything you need to deal with whatever the world can throw at you."
+        passages[53] = "Life is a succession of lessons which must be lived to be understood."
+        passages[54] = "My mission in life is not merely to survive, but to thrive; and to do so with some passion, some compassion, some humor, and some style."
+        passages[55] = "Life is like a coin. You can spend it any way you wish, but you only spend it once."
+        passages[56] = "Life is a song - sing it. Life is a game - play it. Life is a challenge - meet it. Life is a dream - realize it. Life is a sacrifice - offer it. Life is love - enjoy it."
+        passages[57] = "To live is the rarest thing in the world. Most people exist, that is all."
+        passages[58] = "Life is what we make it, always has been, always will be."
+        passages[59] = "Life is either a daring adventure or nothing at all."
+        passages[60] = "The good life is one inspired by love and guided by knowledge."
+
+
 
         var currentPassageIndex by remember { mutableStateOf(0) }
         var userPosition by remember { mutableStateOf(0) }
@@ -113,7 +167,6 @@ fun Game(currentUserState: UserState) {
         var showStartButton by remember { mutableStateOf(true) }
         var wordsTyped by remember { mutableStateOf(0) }
         var totalWords by remember { mutableStateOf(0) }
-        var submittedRace by remember { mutableStateOf(false) }
         var raceID by remember { mutableStateOf(-1) }
         val coroutineScope = rememberCoroutineScope()
 
@@ -179,9 +232,6 @@ fun Game(currentUserState: UserState) {
             } else {
                 ProgressBar(
                     color = Color.Black,
-                    dotRadius = 2f,
-                    spacing = 8f,
-                    lineWidth = 2f,
                     progress = progress
                 )
 
@@ -201,7 +251,6 @@ fun Game(currentUserState: UserState) {
                         }
                     }
                 } else {
-                    Text("You Win!")
                     Button(
                         onClick = { startNewRace() }
                     ) {
@@ -209,7 +258,6 @@ fun Game(currentUserState: UserState) {
                     }
                 }
 
-                Text("Words typed: $wordsTyped / ${totalWords}")
                 Text("WPM: $wpm")
 
                 if (youWin) {
@@ -266,11 +314,11 @@ suspend fun submitRaceResult(currentuserId: Int, wpm: Int, currenttextID: Int): 
     try {
         val userID = currentuserId
         val textID = currenttextID
-        val currentDate = LocalDate.now()
-        // Define the desired date format
-        val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val date = currentDate.format(dateFormat)
-        val requestBody = RaceResultRequest(userID, textID, date, wpm)
+        val currentDateTime = LocalDateTime.now()
+// Define the desired date format
+        val dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val dateTime = currentDateTime.format(dateTimeFormat)
+        val requestBody = RaceResultRequest(userID, textID, dateTime, wpm)
 
         val response: String = client.post(insertRaceEndpoint) {
             contentType(ContentType.Application.Json)
@@ -291,27 +339,15 @@ suspend fun submitRaceResult(currentuserId: Int, wpm: Int, currenttextID: Int): 
 @Composable
 fun ProgressBar(
     color: Color = Color.Black,
-    dotRadius: Float = 2f,
-    spacing: Float = 8f,
-    lineWidth: Float = 2f,
     progress: Float
 ) {
-    Canvas(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        val startY = size.height / 2
-        val endX = size.width * progress
-        var currentX = 0f
-
-        while (currentX < endX) {
-            drawCircle(
-                color = color,
-                radius = dotRadius,
-                center = Offset(currentX, startY),
-                style = Stroke(width = lineWidth)
-            )
-            currentX += spacing
-        }
+    Column {
+        Text(text = "Progress: ${(progress * 100).toInt()}%", style = TextStyle(fontSize = 16.sp))
+        LinearProgressIndicator(
+            color = color,
+            progress = progress,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

@@ -36,7 +36,7 @@ data class ChallengeResponse(val challengeID: Int, val fromUsername: String, val
 data class ChallengeListResponse(val challenges: List<ChallengeResponse>)
 
 @Serializable
-data class ChallengeInfo(val fromUsername: String, val textID: Int)
+data class ChallengeInfo(val fromUsername: String, val textID: Int, val challengeID: Int)
 
 var ChallengeList = mutableListOf<ChallengeInfo>()
 
@@ -72,7 +72,7 @@ suspend fun getChallenges(currentuserId: Int): Boolean {
         println(sortedChallengeResList)
 
         ChallengeList = sortedChallengeResList.mapIndexed { index, challengeResponse ->
-            ChallengeInfo(challengeResponse.fromUsername, challengeResponse.textID)
+            ChallengeInfo(challengeResponse.fromUsername, challengeResponse.textID, challengeResponse.challengeID)
         }.toMutableList()
 
         println(ChallengeList)
@@ -85,13 +85,39 @@ suspend fun getChallenges(currentuserId: Int): Boolean {
     }
 }
 
+suspend fun deleteChallenge(challengeID: Int) : Boolean {
+    val getChallengesEndpoint = "http://localhost:5050/challenges/delete?challengeId=$challengeID"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
+
+    try {
+
+        println("sending delete request")
+
+        val response: HttpResponse = client.delete(getChallengesEndpoint).body()
+
+        client.close()
+        return response.status.value in 200..299
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+        return false
+    }
+}
+
 
 @Composable
 fun MyChallenges(onAccept: () -> Unit, userState: UserState, ) {
-    // Dummy data for testing
     var challenges by remember { mutableStateOf(listOf<ChallengeInfo>()) }
 
-    LaunchedEffect(Unit) {
+    val coroutineScope = rememberCoroutineScope()
+
+    val refreshChallenges = suspend {
         val success = getChallenges(userState.currentUser.userId)
         if (success) {
             println("here are the challenges")
@@ -100,6 +126,11 @@ fun MyChallenges(onAccept: () -> Unit, userState: UserState, ) {
         }
     }
 
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            refreshChallenges()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -107,16 +138,21 @@ fun MyChallenges(onAccept: () -> Unit, userState: UserState, ) {
             .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
-        LazyColumn {
-            items(challenges) { challenge ->
-                ChallengeRow(challenge = challenge, onAccept, userState.acceptedChallenge)
+        if (challenges.isEmpty()) {
+            Text("There are no challenges.")
+        } else {
+            LazyColumn {
+                items(challenges) { challenge ->
+                    ChallengeRow(challenge = challenge, onAccept, userState.acceptedChallenge, refreshChallenges)
+                }
             }
         }
     }
 }
 
+
 @Composable
-fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallenge: challengeAcceptedTextId) {
+fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallenge: challengeAcceptedTextId, refreshChallenges: suspend () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
 
     Row(
@@ -140,10 +176,12 @@ fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallen
         })
         Spacer(modifier = Modifier.width(8.dp))
         ChallengeButton(text = "Reject", onClick = {
-            // Handle reject action
-            // You can update the UI or perform other actions here
-            // For now, let's remove the challenge from the list
-            // challenges.remove(challenge)
+            coroutineScope.launch(Dispatchers.Default) {
+                val success = deleteChallenge(challenge.challengeID)
+                if (success) {
+                    refreshChallenges()
+                }
+            }
         })
     }
 }

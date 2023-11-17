@@ -67,13 +67,14 @@ suspend fun getRaces(currentuserId: Int): Boolean {
 
 @Composable
 fun DataTable(currentUserState: UserState) {
-
     var localRaceInfoList by remember { mutableStateOf(listOf<RaceInfo>()) }
+    var noRaces by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val success = getRaces(currentUserState.currentUser.userId)
         if (success) {
             localRaceInfoList = RaceInfoList
+            noRaces = localRaceInfoList.isEmpty()
         }
     }
 
@@ -83,45 +84,50 @@ fun DataTable(currentUserState: UserState) {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Display the table
-            LazyColumn(
-                Modifier.padding(8.dp)
-            ) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        RowItem("Race Number", true)
-                        RowItem("Date", true)
-                        RowItem("WPM", true)
+            if (noRaces) {
+                Text("No races yet", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            } else {
+                // Display the table
+                LazyColumn(
+                    Modifier.padding(8.dp)
+                ) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            RowItem("Race Number", true)
+                            RowItem("Date", true)
+                            RowItem("WPM", true)
+                        }
+
+                        Divider(
+                            color = Color.LightGray
+                        )
                     }
 
-                    Divider(
-                        color = Color.LightGray
-                    )
-                }
-
-                items(localRaceInfoList) { raceInfo ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        RowItem(raceInfo.raceNumber.toString(), false)
-                        RowItem(raceInfo.date, false)
-                        RowItem(raceInfo.wpm.toString(), false)
+                    items(localRaceInfoList) { raceInfo ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            RowItem(raceInfo.raceNumber.toString(), false)
+                            RowItem(raceInfo.date, false)
+                            RowItem(raceInfo.wpm.toString(), false)
+                        }
+                        Divider(
+                            color = Color.LightGray
+                        )
                     }
-                    Divider(
-                        color = Color.LightGray
-                    )
                 }
+                // Display the time graph
+                Spacer(modifier = Modifier.height(16.dp))
+                TimeGraphCanvas(localRaceInfoList)
             }
-            // Display the time graph
-            Spacer(modifier = Modifier.height(16.dp))
-            TimeGraphCanvas(localRaceInfoList)
         }
     }
 }
+
 
 @Composable
 fun RowScope.RowItem(text: String, title: Boolean) {
