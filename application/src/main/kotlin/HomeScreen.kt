@@ -21,11 +21,17 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Serializable
 data class RaceResultRequest(val userID: Int, val textID: Int, val date: String, val wpm: Int)
+
+@Serializable
+data class ChallengeRequest(val fromUserID: Int, val toUsername: String, val textID: Int, val raceID: Int)
+@Serializable
+data class submitRaceResponse(val raceID: Int, val userID: Int, val textID: Int)
 
 @Composable
 fun HomeScreen(currentUserState: UserState
@@ -33,12 +39,12 @@ fun HomeScreen(currentUserState: UserState
     Game(currentUserState)
 }
 
-
 @Composable
-fun InviteFriends() {
+fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
     var text by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var iserror by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Row (
         modifier = Modifier.fillMaxWidth(),
@@ -67,13 +73,13 @@ fun InviteFriends() {
 
         Button(
             onClick = {
-                if (text.isNotBlank()) {
-                    message = "User @$text has been invited!"
-                    text = ""
-                    iserror = false
-                } else {
-                    message = "Invalid Username"
-                    iserror = true
+                coroutineScope.launch(Dispatchers.Default) {
+                    val success = submitChallenge(currentuserID, text, currenttextID, currentraceID)
+                    if (success) {
+                        print("[SUCCESSFUL] SUBMITTING CHALLENGE")
+                    } else {
+                        print("[FAILED] SUBMITTING CHALLENGE")
+                    }
                 }
             }
         ) {
@@ -102,6 +108,8 @@ fun Game(currentUserState: UserState) {
         var showStartButton by remember { mutableStateOf(true) }
         var wordsTyped by remember { mutableStateOf(0) }
         var totalWords by remember { mutableStateOf(0) }
+        var submittedRace by remember { mutableStateOf(false) }
+        var raceID by remember { mutableStateOf(-1) }
         val coroutineScope = rememberCoroutineScope()
 
         fun getTotalWords(passage: String): Int {
@@ -134,9 +142,10 @@ fun Game(currentUserState: UserState) {
 
             // Call the function to submit the post request
             coroutineScope.launch(Dispatchers.Default) {
-                val success = submitRaceResult(currentUserState.currentUser.userId, wpm)
-                if (success) {
+                val success = submitRaceResult(currentUserState.currentUser.userId, wpm, currentPassageIndex)
+                if (success != -1) {
                     print("[SUCCESSFUL] SUBMITTING RACE")
+                    raceID = success
                 } else {
                     print("[FAILED] SUBMITTING RACE")
                 }
@@ -176,7 +185,7 @@ fun Game(currentUserState: UserState) {
                 if (!youWin) {
                     passages[currentPassageIndex]?.let {
                         Typer(
-                            passage = it
+                            passage = it,
                         ) { typedCharacters, newStartTime, wordCount ->
                             userPosition = typedCharacters
                             if (newStartTime == 0L) {
@@ -198,11 +207,11 @@ fun Game(currentUserState: UserState) {
                 Text("Words typed: $wordsTyped / ${totalWords}")
                 Text("WPM: $wpm")
 
-                if (youWin) {
+                if (youWin and (raceID != -1)) {
                     Spacer(modifier = Modifier.height(50.dp))
                     Text("Challenge a Friend to the Same Race:")
                     Spacer(modifier = Modifier.height(20.dp))
-                    InviteFriends()
+                    InviteFriends(currentUserState.currentUser.userId, currentPassageIndex, raceID)
                 }
             }
 
@@ -211,8 +220,37 @@ fun Game(currentUserState: UserState) {
 }
 
 
+suspend fun submitChallenge(currentuserId: Int, challengeuserName: String, currenttextID: Int, currentraceID: Int): Boolean {
+    val insertChallengeEndpoint = "http://localhost:5050/challenges/send"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
 
-suspend fun submitRaceResult(currentuserId: Int, wpm: Int): Boolean {
+    try {
+        val fromUserID = currentuserId
+        val toUsername = challengeuserName
+        val textID = currenttextID
+        val raceID = currentraceID
+
+
+        val response: HttpResponse = client.post(insertChallengeEndpoint) {
+            contentType(ContentType.Application.Json)
+            setBody(ChallengeRequest(fromUserID, toUsername, textID, raceID))
+        }
+
+        // Close the client after the request
+        client.close()
+        // Handle the response if needed
+        return response.status.value in 200..299
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+        return false
+    }
+}
+
+suspend fun submitRaceResult(currentuserId: Int, wpm: Int, currenttextID: Int): Int {
     val insertRaceEndpoint = "http://localhost:5050/insertRace"
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -221,30 +259,27 @@ suspend fun submitRaceResult(currentuserId: Int, wpm: Int): Boolean {
     }
 
     try {
-        // TODO : replace with actual textId
         val userID = currentuserId
-        val textID = 2
+        val textID = currenttextID
         val currentDate = LocalDate.now()
         // Define the desired date format
         val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val date = currentDate.format(dateFormat)
+        val requestBody = RaceResultRequest(userID, textID, date, wpm)
 
-        val response: HttpResponse = client.post(insertRaceEndpoint) {
+        val response: String = client.post(insertRaceEndpoint) {
             contentType(ContentType.Application.Json)
-
-            println(RaceResultRequest(userID, textID, date, wpm))
-
-            setBody(RaceResultRequest(userID, textID, date, wpm))
-        }
+            setBody(requestBody)
+        }.bodyAsText()
 
         // Close the client after the request
         client.close()
-
+        val submitRaceResponseDecoded: submitRaceResponse = Json.decodeFromString(response)
         // Handle the response if needed
-        return response.status.value in 200..299
+        return submitRaceResponseDecoded.raceID
     } catch (e: Exception) {
         // Handle exceptions if needed
-        return false
+        return -1
     }
 }
 

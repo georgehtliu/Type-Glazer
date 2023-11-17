@@ -128,7 +128,7 @@ fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallen
         // Display challenge details
         Text(text = "From: ${challenge.fromUsername}")
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text = "Race ID: ${challenge.textID}")
+        Text(text = "Text ID: ${challenge.textID}")
 
         // Accept and reject buttons
         Spacer(modifier = Modifier.weight(1f))

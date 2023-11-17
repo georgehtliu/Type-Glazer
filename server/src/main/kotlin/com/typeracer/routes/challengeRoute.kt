@@ -35,6 +35,9 @@ fun Route.challengeRoutes() {
             val textID = sendChallengeRequest.textID
             val raceID = sendChallengeRequest.raceID
 
+            print("THIS IS THE TEXT ID")
+            print(textID)
+
             // first obtain toUserID
             val toUserID = transaction {
                 Users.select { Users.username eq toUsername }
