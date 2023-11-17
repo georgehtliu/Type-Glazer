@@ -118,7 +118,6 @@ fun Game(currentUserState: UserState) {
 
         }
 
-
         fun startNewRace() {
             currentPassageIndex = getPassageIndex(currentUserState.acceptedChallenge.textId)
             userPosition = 0
