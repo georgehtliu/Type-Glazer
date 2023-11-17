@@ -1,0 +1,26 @@
+Version: 3.0
+Release Date: Nov 17, 2023
+
+New Features
+1. User sign-up/login/logout
+Users are now able to:
+- Sign up for new accounts.
+- Log in securely to access saved race info.
+- Log out to terminate sessions, ensuring a streamlined and secure user experience.
+
+2. Race Info Display
+Users can access their past race info including race number, race date and score (wpm) from the 'Data' table.
+Upon race completion, a new entry will be added to the data table.
+A line graph comparing race number vs wpm score has been added to show the user's progress overtime.
+
+3. Send Challenge
+Users can now challenge their friends by sending a race invitation upon completing a race.
+They can do so by specifying the recipient's username.
+
+4. Display Challenge
+Users can view incoming challenges on the 'My Challenges' page.
+Users to conveniently accept or decline their invited challenges.
+
+5. Accept Challenge
+Users can hit "Accept" for a challenge and engage in a race with the same text as others in the challenge.
+This feature ensures a competitive and fair gaming experience.
