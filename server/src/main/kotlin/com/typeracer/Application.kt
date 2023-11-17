@@ -19,7 +19,7 @@ fun main() {
 }
 
 fun Application.module() {
-    Database.connect("jdbc:sqlite:/Users/cindygu/typeracer.db", driver = "org.sqlite.JDBC")
+    Database.connect("jdbc:sqlite:/Users/georgeliu/typeracer.db", driver = "org.sqlite.JDBC")
 
     // Perform actions when the database connects
     // tmp change
