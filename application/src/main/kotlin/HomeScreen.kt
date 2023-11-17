@@ -77,8 +77,13 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
                     val success = submitChallenge(currentuserID, text, currenttextID, currentraceID)
                     if (success) {
                         print("[SUCCESSFUL] SUBMITTING CHALLENGE")
+                        message = "User @$text has been invited!"
+                        text = ""
+                        iserror = false
                     } else {
                         print("[FAILED] SUBMITTING CHALLENGE")
+                        message = "Invalid Username"
+                        iserror = true
                     }
                 }
             }
@@ -207,7 +212,7 @@ fun Game(currentUserState: UserState) {
                 Text("Words typed: $wordsTyped / ${totalWords}")
                 Text("WPM: $wpm")
 
-                if (youWin and (raceID != -1)) {
+                if (youWin) {
                     Spacer(modifier = Modifier.height(50.dp))
                     Text("Challenge a Friend to the Same Race:")
                     Spacer(modifier = Modifier.height(20.dp))
