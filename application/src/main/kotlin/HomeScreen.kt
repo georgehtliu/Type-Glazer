@@ -95,6 +95,13 @@ fun Game(currentUserState: UserState) {
     MaterialTheme {
         var progress by remember { mutableStateOf(0.0f) }
         val passages: HashMap<Int, String> = HashMap<Int, String>()
+
+        //
+        // 0 to 19: Easy
+        // 20 to 39: Medium
+        // 40 to 59: Hard
+        //
+
         passages[0] = "The quick brown fox jumped over the lazy dog and cat and mouse and fish"
         passages[1] = "The sun is shining, the birds are singing, and the flowers are blooming"
         passages[2] = "Education is the most powerful weapon which you can use to change the world"
@@ -115,49 +122,46 @@ fun Game(currentUserState: UserState) {
         passages[17] = "The strength of the team is each individual member. The strength of each member is the team."
         passages[18] = "Soccer is simple, but it is difficult to play simple."
         passages[19] = "In football, the worst blindness is only seeing the ball."
-        passages[20] = "The secret of food lies in memory – of thinking and then knowing what the taste of cinnamon or steak is."
-        passages[21] = "First we eat, then we do everything else."
-        passages[22] = "The only bad workout is the one that didn't happen."
-        passages[23] = "The last three or four reps is what makes the muscle grow. This area of pain divides a champion from someone who is not a champion."
-        passages[24] = "If you think lifting weights is dangerous, try being weak. Being weak is dangerous."
-        passages[25] = "The only place where success comes before work is in the dictionary."
-        passages[26] = "The clock is ticking. Are you becoming the person you want to be?"
-        passages[27] = "Whether you think you can, or you think you can't, you're right."
-        passages[28] = "The successful warrior is the average man, with laser-like focus."
-        passages[29] = "Don't limit your challenges. Challenge your limits."
-        passages[30] = "Each new day is a new opportunity to improve yourself. Take it and make the most of it."
-        passages[31] = "In the world of programming, simplicity and clarity are the key to efficient code."
-        passages[32] = "Music gives a soul to the universe, wings to the mind, flight to the imagination and life to everything."
-        passages[33] = "Art is not what you see, but what you make others see."
-        passages[34] = "The beauty of nature will leave you speechless once you start traveling, but it will make you a storyteller once you finish traveling."
-        passages[35] = "Photography is the story I fail to put into words."
-        passages[36] = "Life is like riding a bicycle. To keep your balance, you must keep moving."
-        passages[37] = "The journey of a thousand miles begins with one step."
-        passages[38] = "In the end, it's not the years in your life that count. It's the life in your years."
-        passages[39] = "Life is really simple, but we insist on making it complicated."
-        passages[40] = "In three words I can sum up everything I've learned about life: it goes on."
-        passages[41] = "Life is what happens when you're busy making other plans."
-        passages[42] = "Many of life's failures are people who did not realize how close they were to success when they gave up."
-        passages[43] = "If you want to live a happy life, tie it to a goal, not to people or things."
-        passages[44] = "Never let the fear of striking out keep you from playing the game."
-        passages[45] = "The purpose of our lives is to be happy."
-        passages[46] = "Life is never fair, and perhaps it is a good thing for most of us that it is not."
-        passages[47] = "The biggest adventure you can take is to live the life of your dreams."
-        passages[48] = "Life is short, and it's up to you to make it sweet."
-        passages[49] = "Life doesn't require that we be the best, only that we try our best."
-        passages[50] = "I have found that if you love life, life will love you back."
-        passages[51] = "Life is really simple, but men insist on making it complicated."
-        passages[52] = "You have within you right now, everything you need to deal with whatever the world can throw at you."
-        passages[53] = "Life is a succession of lessons which must be lived to be understood."
-        passages[54] = "My mission in life is not merely to survive, but to thrive; and to do so with some passion, some compassion, some humor, and some style."
-        passages[55] = "Life is like a coin. You can spend it any way you wish, but you only spend it once."
-        passages[56] = "Life is a song - sing it. Life is a game - play it. Life is a challenge - meet it. Life is a dream - realize it. Life is a sacrifice - offer it. Life is love - enjoy it."
-        passages[57] = "To live is the rarest thing in the world. Most people exist, that is all."
-        passages[58] = "Life is what we make it, always has been, always will be."
-        passages[59] = "Life is either a daring adventure or nothing at all."
-        passages[60] = "The good life is one inspired by love and guided by knowledge."
-
-
+        passages[20] = "Med The secret of food lies in memory – of thinking and then knowing what the taste of cinnamon or steak is."
+        passages[21] = "Med First we eat, then we do everything else."
+        passages[22] = "Med The only bad workout is the one that didn't happen."
+        passages[23] = "Med The last three or four reps is what makes the muscle grow. This area of pain divides a champion from someone who is not a champion."
+        passages[24] = "Med If you think lifting weights is dangerous, try being weak. Being weak is dangerous."
+        passages[25] = "Med The only place where success comes before work is in the dictionary."
+        passages[26] = "Med The clock is ticking. Are you becoming the person you want to be?"
+        passages[27] = "Med Whether you think you can, or you think you can't, you're right."
+        passages[28] = "Med The successful warrior is the average man, with laser-like focus."
+        passages[29] = "Med Don't limit your challenges. Challenge your limits."
+        passages[30] = "Med Each new day is a new opportunity to improve yourself. Take it and make the most of it."
+        passages[31] = "Med In the world of programming, simplicity and clarity are the key to efficient code."
+        passages[32] = "Med Music gives a soul to the universe, wings to the mind, flight to the imagination and life to everything."
+        passages[33] = "Med Art is not what you see, but what you make others see."
+        passages[34] = "Med The beauty of nature will leave you speechless once you start traveling, but it will make you a storyteller once you finish traveling."
+        passages[35] = "Med Photography is the story I fail to put into words."
+        passages[36] = "Med Life is like riding a bicycle. To keep your balance, you must keep moving."
+        passages[37] = "Med The journey of a thousand miles begins with one step."
+        passages[38] = "Med In the end, it's not the years in your life that count. It's the life in your years."
+        passages[39] = "Hard Life is really simple, but we insist on making it complicated."
+        passages[40] = "Hard In three words I can sum up everything I've learned about life: it goes on."
+        passages[41] = "Hard Life is what happens when you're busy making other plans."
+        passages[42] = "Hard Many of life's failures are people who did not realize how close they were to success when they gave up."
+        passages[43] = "Hard If you want to live a happy life, tie it to a goal, not to people or things."
+        passages[44] = "Hard Never let the fear of striking out keep you from playing the game."
+        passages[45] = "Hard The purpose of our lives is to be happy."
+        passages[46] = "Hard Life is never fair, and perhaps it is a good thing for most of us that it is not."
+        passages[47] = "Hard The biggest adventure you can take is to live the life of your dreams."
+        passages[48] = "Hard Life is short, and it's up to you to make it sweet."
+        passages[49] = "Hard Life doesn't require that we be the best, only that we try our best."
+        passages[50] = "Hard I have found that if you love life, life will love you back."
+        passages[51] = "Hard Life is really simple, but men insist on making it complicated."
+        passages[52] = "Hard You have within you right now, everything you need to deal with whatever the world can throw at you."
+        passages[53] = "Hard Life is a succession of lessons which must be lived to be understood."
+        passages[54] = "Hard My mission in life is not merely to survive, but to thrive; and to do so with some passion, some compassion, some humor, and some style."
+        passages[55] = "Hard Life is like a coin. You can spend it any way you wish, but you only spend it once."
+        passages[56] = "Hard Life is a song - sing it. Life is a game - play it. Life is a challenge - meet it. Life is a dream - realize it. Life is a sacrifice - offer it. Life is love - enjoy it."
+        passages[57] = "Hard To live is the rarest thing in the world. Most people exist, that is all."
+        passages[58] = "Hard Life is what we make it, always has been, always will be."
+        passages[59] = "Hard Life is either a daring adventure or nothing at all."
 
         var currentPassageIndex by remember { mutableStateOf(0) }
         var userPosition by remember { mutableStateOf(0) }
@@ -168,6 +172,7 @@ fun Game(currentUserState: UserState) {
         var wordsTyped by remember { mutableStateOf(0) }
         var totalWords by remember { mutableStateOf(0) }
         var raceID by remember { mutableStateOf(-1) }
+        var difficulty by remember { mutableStateOf(0)}
         val coroutineScope = rememberCoroutineScope()
 
         fun getTotalWords(passage: String): Int {
@@ -179,9 +184,46 @@ fun Game(currentUserState: UserState) {
             if (challengeTextId != -1) {
                 return challengeTextId
             } else {
-                return (0 until passages.size).random()
+                return difficulty * 20 + (0 until 20).random()
             }
 
+        }
+
+        @Composable
+        fun getDifficultyButtonColor(buttonDifficulty: Int): ButtonColors {
+            if (difficulty == buttonDifficulty) {
+                return ButtonDefaults.buttonColors(backgroundColor = Color.Green)
+            } else {
+                return ButtonDefaults.buttonColors(backgroundColor = Color.Red)
+            }
+        }
+
+        @Composable
+        fun difficultyButtonGroup(): Unit {
+            if (UserState.acceptedChallenge.textId == -1) {
+                return (
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                        Button(
+                            onClick = { difficulty = 0; },
+                            colors = getDifficultyButtonColor(0)
+                        ) {
+                            Text("Easy")
+                        }
+                        Button(
+                            onClick = { difficulty = 1; },
+                            colors = getDifficultyButtonColor(1)
+                        ) {
+                            Text("Medium")
+                        }
+                        Button(
+                            onClick = { difficulty = 2; },
+                            colors = getDifficultyButtonColor(2)
+                        ) {
+                            Text("Hard")
+                        }
+                    }
+                )
+            }
         }
 
         fun startNewRace() {
@@ -229,6 +271,7 @@ fun Game(currentUserState: UserState) {
                 ) {
                     Text("Start Race")
                 }
+                difficultyButtonGroup()
             } else {
                 ProgressBar(
                     color = Color.Black,
@@ -256,6 +299,7 @@ fun Game(currentUserState: UserState) {
                     ) {
                         Text("Start New Race")
                     }
+                    difficultyButtonGroup()
                 }
 
                 Text("WPM: $wpm")
