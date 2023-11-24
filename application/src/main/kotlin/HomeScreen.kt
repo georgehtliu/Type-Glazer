@@ -60,7 +60,7 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
                 Spacer(modifier = Modifier.height(8.dp))
                 if (iserror) {
                     Text(it, color = Color.Red)
-                } else{
+                } else {
                     Text(it, color = Color.Green)
                 }
             }
@@ -202,10 +202,10 @@ fun Game(currentUserState: UserState) {
             coroutineScope.launch(Dispatchers.Default) {
                 val success = submitRaceResult(currentUserState.currentUser.userId, wpm, currentPassageIndex)
                 if (success != -1) {
-                    print("[SUCCESSFUL] SUBMITTING RACE")
+                    println("[SUCCESSFUL] SUBMITTING RACE")
                     raceID = success
                 } else {
-                    print("[FAILED] SUBMITTING RACE")
+                    println("[FAILED] SUBMITTING RACE")
                 }
             }
         }
@@ -364,11 +364,22 @@ fun Typer(
     var wordCount by remember { mutableStateOf(0) }
 
     fun update(currentInput: String) {
+        // If they deleted (1 character, multiple characters)
         if (currentInput.length < prevValue.length) {
-            value = currentInput
-            errorPosition -= 1
-            if (errorPosition < userPosition) {
-                userPosition = errorPosition
+            val diff = prevValue.length - currentInput.length
+            if(diff == 1) {
+                // Single letter deleted case
+                value = currentInput
+                errorPosition -= 1
+                if (errorPosition < userPosition) {
+                    userPosition = errorPosition
+                }
+
+            } else {
+                // Multiple letters deleted case
+                value = ""
+                userPosition -= (diff - (errorPosition - userPosition))
+                errorPosition -= diff
             }
         } else if (currentInput.length == 0) {
             errorPosition = userPosition
