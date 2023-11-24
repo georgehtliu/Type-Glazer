@@ -17,6 +17,9 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import androidx.compose.ui.window.*
+import java.io.File
+import kotlin.system.exitProcess
 
 @Serializable
 data class LoginRequest(val username: String, val password: String)
@@ -94,7 +97,26 @@ suspend fun signup(username: String, password: String, signupuserId: userId): Bo
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    val homeDir = System.getProperty("user.home");
+    var initialState = ""
+    val file = File("$homeDir/windowSettings.txt")
+    if (!file.exists()) {
+        File("$homeDir/windowSettings.txt").writeText("Absolute(0.dp, 0.dp);600.0.dp x 400.0.dp")
+    }
+    file.forEachLine { initialState = it }
+    val position = initialState.split(";")[0]
+    val xPos = position.split(",")[0].split("(")[1].split(".")[0].toInt()
+    val yPos = position.split(",")[1].split(".")[0].split(" ")[1].toInt()
+    val size = initialState.split(";")[1]
+    val width = size.split(".")[0].toInt()
+    val height = size.split(".")[2].split(" ")[2].toInt()
+    val state = rememberWindowState(height = height.dp, width = width.dp, position = WindowPosition.Absolute(xPos.dp, yPos.dp))
+
+    fun close() {
+        File("$homeDir/windowSettings.txt").writeText(state.position.toString() + ";" + state.size.toString())
+        exitProcess(0)
+    }
+    Window(onCloseRequest = { close() }, state) {
         App()
     }
 }
