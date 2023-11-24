@@ -112,7 +112,7 @@ fun App(
 
 @Composable
 fun ShowMainScreens(onLogout: () -> Unit) {
-    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Settings, BottomNavScreen.Data, BottomNavScreen.MyChallenges)
+    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Settings, BottomNavScreen.Data, BottomNavScreen.MyChallenges, BottomNavScreen.RaceDetails)
     var selected by remember { mutableStateOf(screens.first()) }
 
     Scaffold(
@@ -135,6 +135,7 @@ fun ShowMainScreens(onLogout: () -> Unit) {
                 BottomNavScreen.Settings -> SettingsScreen(onLogout)
                 BottomNavScreen.Data -> DataTable(UserState)
                 BottomNavScreen.MyChallenges -> MyChallenges(onAccept = {selected = BottomNavScreen.Home}, UserState)
+                BottomNavScreen.RaceDetails -> ChallengeDetails()
             }
         }
     )

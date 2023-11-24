@@ -39,4 +39,9 @@ sealed class BottomNavScreen(
         title = "MyChallenges",
         icon = Icons.Default.Favorite
     )
+
+    object RaceDetails : BottomNavScreen (
+        title = "RaceDetails",
+        icon = Icons.Default.Favorite
+    )
 }
