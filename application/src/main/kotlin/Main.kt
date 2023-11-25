@@ -160,7 +160,7 @@ fun ShowMainScreens(onLogout: () -> Unit) {
                 BottomNavScreen.Settings -> SettingsScreen(onLogout)
                 BottomNavScreen.Data -> DataTable(UserState)
                 BottomNavScreen.MyChallenges -> MyChallenges(onAccept = {selected = BottomNavScreen.Home}, UserState)
-                BottomNavScreen.RaceDetails -> ChallengeDetails()
+                BottomNavScreen.RaceDetails -> ChallengeDetails(UserState)
             }
         }
     )
