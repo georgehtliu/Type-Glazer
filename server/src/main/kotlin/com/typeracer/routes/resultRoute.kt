@@ -24,14 +24,14 @@ fun Route.resultRoutes() {
         if (userID != null) {
             val results = transaction {
                 Results.select {
-                    Results.user1ID eq userID or (Results.user2ID eq userID)
+                    (Results.user1ID eq userID) or (Results.user2ID eq userID)
                 }.map {
                     Result(
                         it[Results.resultID],
-                        it[Results.user1ID],
-                        it[Results.user2ID],
-                        it[Results.user1WPM],
-                        it[Results.user2WPM]
+                        userID,  // Set userID to user1ID
+                        if (it[Results.user1ID] == userID) it[Results.user2ID] else it[Results.user1ID],  // Set otherUserID
+                        if (it[Results.user1ID] == userID) it[Results.user1WPM] else it[Results.user2WPM],  // Set wpm
+                        if (it[Results.user1ID] == userID) it[Results.user2WPM] else it[Results.user1WPM]   // Set otherUserWPM
                     )
                 }
             }
@@ -40,6 +40,7 @@ fun Route.resultRoutes() {
             call.respond(HttpStatusCode.BadRequest, "Invalid or missing userID")
         }
     }
+
 
 
     // need fromRaceID, toRaceID
