@@ -1,9 +1,6 @@
 package com.typeracer
 
-import com.typeracer.data.schema.Challenges
-import com.typeracer.data.schema.Races
-import com.typeracer.data.schema.Texts
-import com.typeracer.data.schema.Users
+import com.typeracer.data.schema.*
 import com.typeracer.plugins.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -28,11 +25,12 @@ fun Application.module() {
         exec("DROP TABLE IF EXISTS Races")
         exec("DROP TABLE IF EXISTS Texts")
         exec("DROP TABLE IF EXISTS Challenges")
+        exec("DROP TABLE IF EXISTS Results")
     }
 
     // Create new tables
     transaction {
-        SchemaUtils.create(Users, Races, Texts, Challenges)
+        SchemaUtils.create(Users, Races, Texts, Challenges, Results)
 
         // Insert sample data
         Users.insert {

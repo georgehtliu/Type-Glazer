@@ -17,5 +17,6 @@ fun Application.configureRouting() {
         authRoutes()
         raceRoutes()
         challengeRoutes()
+        resultRoutes()
     }
 }
