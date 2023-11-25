@@ -24,7 +24,7 @@ data class Challenge(
     val username: String,
     val score: Int
 )
-
+@Serializable
 data class ResultInfo(val user1ID: Int, val user2ID: Int, val user1WPM: Int, val user2WPM: Int)
 
 @Serializable
@@ -46,10 +46,23 @@ suspend fun getResults(currentuserId: Int): Boolean {
     }
 
     try {
+
+        print("hello 0")
+
+
         val responseBody: String = client.get(getResultsEndpoint).body()
 
-        val resultListResponse: ResultListResponse = Json.decodeFromString(responseBody)
+        print("helo 1")
+        print(responseBody)
+
+        val resultListResponse: ResultListResponse = Json.decodeFromString("""{
+    "results": $responseBody
+}""")
+
+        print("helo 2")
         val resultResList: List<ResultResponse> = resultListResponse.results
+
+        print("helo 3")
 
         print(resultResList)
 
