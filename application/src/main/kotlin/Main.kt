@@ -31,6 +31,8 @@ data class userId(var userId: Int)
 
 data class challengeAcceptedTextId(var textId: Int)
 
+data class challengeAcceptedRaceId(var challengeRaceId: Int)
+
 enum class LoginStatus {
     NONE,
     SUCCESS,
@@ -40,6 +42,7 @@ enum class LoginStatus {
 object UserState {
     var currentUser = userId(-1)
     var acceptedChallenge = challengeAcceptedTextId(-1)
+    var acceptedChallengeRace = challengeAcceptedRaceId(-1)
 }
 
 suspend fun login(username: String, password: String, loginuserId: userId): Boolean {
