@@ -55,21 +55,31 @@ fun Route.userRoutes() {
         val password = user.password
 
         if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-            val newUser = transaction {
-                Users.insert {
-                    it[Users.username] = username
-                    it[Users.email] = email
-                    it[Users.password] = password
-                }
-            }
-
-            val foundUser = transaction {
-                Users.select { (Users.username eq username) }
+            val existingUser = transaction {
+                Users.select { Users.username eq username }
                     .map { User(it[Users.userID], it[Users.username], it[Users.email], it[Users.password]) }
                     .singleOrNull()
             }
 
-            call.respondText(Json.encodeToString(foundUser?.userID), ContentType.Application.Json, status = HttpStatusCode.Created)
+            if (existingUser == null) {
+                val newUser = transaction {
+                    Users.insert {
+                        it[Users.username] = username
+                        it[Users.email] = email
+                        it[Users.password] = password
+                    }
+                }
+
+                val foundUser = transaction {
+                    Users.select { (Users.username eq username) }
+                        .map { User(it[Users.userID], it[Users.username], it[Users.email], it[Users.password]) }
+                        .singleOrNull()
+                }
+
+                call.respondText(Json.encodeToString(foundUser?.userID), ContentType.Application.Json, status = HttpStatusCode.Created)
+            } else {
+                call.respondText("User with the username already exists", status = HttpStatusCode.Conflict)
+            }
         } else {
             call.respondText("Invalid user data", status = HttpStatusCode.BadRequest)
         }

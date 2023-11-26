@@ -79,12 +79,12 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
                 coroutineScope.launch(Dispatchers.Default) {
                     val success = submitChallenge(currentuserID, text, currenttextID, currentraceID)
                     if (success) {
-                        print("[SUCCESSFUL] SUBMITTING CHALLENGE")
+                        println("[SUCCESSFUL] SUBMITTING CHALLENGE")
                         message = "User @$text has been invited!"
                         text = ""
                         iserror = false
                     } else {
-                        print("[FAILED] SUBMITTING CHALLENGE")
+                        println("[FAILED] SUBMITTING CHALLENGE")
                         message = "Invalid Username"
                         iserror = true
                     }
