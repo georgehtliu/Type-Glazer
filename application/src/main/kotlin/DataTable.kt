@@ -164,7 +164,12 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
 
         // Draw data points
         raceData.forEachIndexed { index, data ->
-            val x = paddingStart + ((index.toFloat() / (maxX - 1)) * plotWidth)
+            val x = if (maxX > 1) {
+                paddingStart + ((index.toFloat() / (maxX - 1)) * plotWidth)
+            } else {
+                size.width / 2
+            }
+
             val y = size.height - ((data.wpm.toFloat() / maxY) * (size.height - 20))
 
             drawCircle(color = Color.Blue, radius = 3f, center = Offset(x, y))
@@ -191,7 +196,7 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
                 val mark = size.height - ((i * yLabelInterval / maxY) * (size.height - 20))
                 drawText(
                     textLayoutResult = labelLayout,
-                    topLeft = Offset(paddingStart - 20f, mark - 8f)
+                    topLeft = Offset(paddingStart - 40f, mark - 10f)
                 )
 
                 drawLine(start = Offset(paddingStart - 5f, mark), end = Offset(paddingStart, mark), color = Color.Black)
