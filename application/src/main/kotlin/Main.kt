@@ -119,7 +119,10 @@ fun main() = application {
         File("$homeDir/windowSettings.txt").writeText(state.position.toString() + ";" + state.size.toString())
         exitProcess(0)
     }
-    Window(onCloseRequest = { close() }, state) {
+
+    val title by remember { mutableStateOf("Type Glazer") }
+
+    Window(title = title, onCloseRequest = { close() }, state = state) {
         App()
     }
 }
@@ -131,7 +134,7 @@ fun App(
     if (onIntroScreen) {
         IntroScreen(onDismiss = { onIntroScreen = false }, UserState.currentUser)
     } else {
-        ShowMainScreens(onLogout = { onIntroScreen = true; UserState.currentUser.userId = -1})
+        ShowMainScreens(onLogout = { onIntroScreen = true; UserState.currentUser.userId = -1; UserState.acceptedChallengeRace.challengeRaceId = -1; UserState.acceptedChallenge.textId = -1})
     }
 }
 
@@ -148,7 +151,13 @@ fun ShowMainScreens(onLogout: () -> Unit) {
                         icon = { Icon(screen.icon, contentDescription = screen.title) },
                         label = { Text(screen.title) },
                         selected = screen == selected,
-                        onClick = { selected = screen },
+                        onClick = {
+                            if (screen == BottomNavScreen.Settings) {
+                                onLogout()
+                            } else {
+                                selected = screen
+                            }
+                        },
                         modifier = Modifier.padding(8.dp)
                     )
                 }
@@ -160,7 +169,7 @@ fun ShowMainScreens(onLogout: () -> Unit) {
                 BottomNavScreen.Data -> DataTable(UserState)
                 BottomNavScreen.MyChallenges -> MyChallenges(onAccept = {selected = BottomNavScreen.Home}, UserState)
                 BottomNavScreen.RaceDetails -> ChallengeDetails(UserState)
-                BottomNavScreen.Settings -> SettingsScreen(onLogout)
+                BottomNavScreen.Settings -> HomeScreen(UserState)
             }
         }
     )
@@ -177,94 +186,96 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
 
     val coroutineScope = rememberCoroutineScope()
 
-    Scaffold (
-        content = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
+    MaterialTheme {
+        Scaffold(
+            content = {
+                Box(
                     modifier = Modifier
-                        .padding(16.dp)
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Welcome to the Type Glazer!")
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("We're glad to have you here.")
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Simply sign in and begin glazing some donuts!")
-                    Spacer(modifier = Modifier.height(16.dp))
-                    SignUpPrompt(username, password, { username = it }, { password = it }, isSignInMode)
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    if (loginStatus == LoginStatus.FAILURE) {
-                        Text(errorMessage)
-                    }
-
-                    Row(
+                    Column(
                         modifier = Modifier
+                            .padding(16.dp)
+                            .padding(16.dp)
                             .fillMaxWidth()
                             .wrapContentHeight(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Button(onClick = {
-                            if (isSignInMode) {
-                                coroutineScope.launch(Dispatchers.Default) {
-                                    val success = login(username, password, currentuserId)
-                                    if (success) {
-                                        onDismiss.invoke()
-                                    } else {
-                                        errorMessage = "Invalid username or password. Please try again."
-                                        loginStatus = LoginStatus.FAILURE
+                        Text("Welcome to the Type Glazer!")
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("We're glad to have you here.")
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Simply sign in and begin glazing some donuts!")
+                        Spacer(modifier = Modifier.height(16.dp))
+                        SignUpPrompt(username, password, { username = it }, { password = it }, isSignInMode)
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        if (loginStatus == LoginStatus.FAILURE) {
+                            Text(errorMessage)
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(onClick = {
+                                if (isSignInMode) {
+                                    coroutineScope.launch(Dispatchers.Default) {
+                                        val success = login(username, password, currentuserId)
+                                        if (success) {
+                                            onDismiss.invoke()
+                                        } else {
+                                            errorMessage = "Invalid username or password. Please try again."
+                                            loginStatus = LoginStatus.FAILURE
+                                        }
+                                    }
+                                } else {
+                                    coroutineScope.launch(Dispatchers.Default) {
+                                        val success = signup(username, password, currentuserId)
+                                        if (success) {
+                                            onDismiss.invoke()
+                                        } else {
+                                            errorMessage = "Sign up failed. Please try again."
+                                            loginStatus = LoginStatus.FAILURE
+                                        }
                                     }
                                 }
-                            } else {
-                                coroutineScope.launch(Dispatchers.Default) {
-                                    val success = signup(username, password, currentuserId)
-                                    if (success) {
-                                        onDismiss.invoke()
-                                    } else {
-                                        errorMessage = "Sign up failed. Please try again."
-                                        loginStatus = LoginStatus.FAILURE
-                                    }
+                            }) {
+                                if (isSignInMode) {
+                                    Text("Sign In")
+                                } else {
+                                    Text("Sign up")
                                 }
-                            }
-                        }) {
-                            if (isSignInMode) {
-                                Text("Sign In")
-                            } else {
-                                Text("Sign up")
                             }
                         }
-                    }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(onClick = {
-                            isSignInMode = !isSignInMode
-                            loginStatus = LoginStatus.NONE
-                        }) {
-                            if (isSignInMode) {
-                                Text("Sign Up as a new user")
-                            } else {
-                                Text("Sign in as an existing user")
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(onClick = {
+                                isSignInMode = !isSignInMode
+                                loginStatus = LoginStatus.NONE
+                            }) {
+                                if (isSignInMode) {
+                                    Text("Sign Up as a new user")
+                                } else {
+                                    Text("Sign in as an existing user")
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-    )
+        )
+    }
 }
 
 

@@ -2,11 +2,10 @@
 
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -127,18 +126,33 @@ fun MyChallenges(onAccept: () -> Unit, userState: UserState, ) {
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        contentAlignment = Alignment.Center
-    ) {
-        if (challenges.isEmpty()) {
-            Text("There are no incoming challenges.")
-        } else {
-            LazyColumn {
-                items(challenges) { challenge ->
-                    ChallengeRow(challenge = challenge, onAccept, userState.acceptedChallenge, userState.acceptedChallengeRace, refreshChallenges)
+    val myAlignment : Alignment = if (challenges.isEmpty()) {
+        Alignment.Center
+    } else {
+        Alignment.TopStart
+    }
+
+    MaterialTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(16.dp, 16.dp, 16.dp, 75.dp),
+            contentAlignment = myAlignment,
+        ) {
+            if (challenges.isEmpty()) {
+                Text("There are no incoming challenges.")
+            } else {
+                LazyColumn {
+                    items(challenges) { challenge ->
+                        ChallengeRow(
+                            challenge = challenge,
+                            onAccept,
+                            userState.acceptedChallenge,
+                            userState.acceptedChallengeRace,
+                            refreshChallenges
+                        )
+                    }
                 }
             }
         }
@@ -160,12 +174,11 @@ fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallen
     ) {
         // Display challenge details
         Text(text = "From: ${challenge.fromUsername}")
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = "Text ID: ${challenge.textID}")
 
         // Accept and reject buttons
         Spacer(modifier = Modifier.weight(1f))
-        ChallengeButton(text = "Accept", onClick = {
+        ChallengeButton(
+            text = "Accept", onClick = {
             coroutineScope.launch(Dispatchers.Default) {
                 acceptedChallenge.textId = challenge.textID
                 acceptedChallengeRace.challengeRaceId = challenge.challengeRaceID
@@ -175,29 +188,34 @@ fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallen
                 }
                 onAccept()
             }
-        })
+        },
+        color = Color(0xffadf7a4),
+        textColor = Color(0xff00ad0e),
+        )
+
         Spacer(modifier = Modifier.width(8.dp))
-        ChallengeButton(text = "Reject", onClick = {
+        ChallengeButton(
+            text = "Reject", onClick = {
             coroutineScope.launch(Dispatchers.Default) {
                 val success = deleteChallenge(challenge.challengeID)
                 if (success) {
                     refreshChallenges()
                 }
             }
-        })
+        },
+        color = Color(0xffffcccf),
+        textColor = Color(0xffca1e17),
+        )
     }
 }
 
 @Composable
-fun ChallengeButton(text: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(50.dp)
-            .background(Color.Gray)
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
+fun ChallengeButton(text: String, onClick: () -> Unit, color: Color, textColor: Color) {
+    Button(
+        colors = ButtonDefaults.buttonColors(contentColor = textColor, backgroundColor = color),
+        onClick = { onClick() }
     ) {
-        Text(text = text, color = Color.White)
+        Text(text = text)
     }
 }
 

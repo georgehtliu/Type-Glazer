@@ -25,6 +25,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.min
 
 @Serializable
 data class RaceResultRequest(val userID: Int, val textID: Int, val date: String, val wpm: Int)
@@ -74,24 +75,28 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        Button(
-            onClick = {
-                coroutineScope.launch(Dispatchers.Default) {
-                    val success = submitChallenge(currentuserID, text, currenttextID, currentraceID)
-                    if (success) {
-                        println("[SUCCESSFUL] SUBMITTING CHALLENGE")
-                        message = "User @$text has been invited!"
-                        text = ""
-                        iserror = false
-                    } else {
-                        println("[FAILED] SUBMITTING CHALLENGE")
-                        message = "Invalid Username"
-                        iserror = true
+        Column(
+        ) {
+            Button(
+                onClick = {
+                    coroutineScope.launch(Dispatchers.Default) {
+                        val success = submitChallenge(currentuserID, text, currenttextID, currentraceID)
+                        if (success) {
+                            println("[SUCCESSFUL] SUBMITTING CHALLENGE")
+                            message = "User @$text has been invited!"
+                            text = ""
+                            iserror = false
+                        } else {
+                            println("[FAILED] SUBMITTING CHALLENGE")
+                            message = "Invalid Username"
+                            iserror = true
+                        }
                     }
                 }
+            ) {
+                Text("Challenge")
             }
-        ) {
-            Text("Challenge")
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -199,9 +204,9 @@ fun Game(currentUserState: UserState) {
         @Composable
         fun getDifficultyButtonColor(buttonDifficulty: Int): ButtonColors {
             if (difficulty == buttonDifficulty) {
-                return ButtonDefaults.buttonColors(backgroundColor = Color.Green)
+                return ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
             } else {
-                return ButtonDefaults.buttonColors(backgroundColor = Color.Red)
+                return ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
             }
         }
 
@@ -209,7 +214,7 @@ fun Game(currentUserState: UserState) {
         fun difficultyButtonGroup(): Unit {
             if (UserState.acceptedChallenge.textId == -1) {
                 return (
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                    Row(modifier = (Modifier.padding(4.dp)), horizontalArrangement = Arrangement.spacedBy(15.dp), verticalAlignment = Alignment.CenterVertically) {
                         Button(
                             onClick = { difficulty = 0; },
                             colors = getDifficultyButtonColor(0)
@@ -286,7 +291,7 @@ fun Game(currentUserState: UserState) {
                 difficultyButtonGroup()
             } else {
                 ProgressBar(
-                    color = Color.Black,
+                    color = MaterialTheme.colors.primary,
                     progress = progress
                 )
 
@@ -321,7 +326,7 @@ fun Game(currentUserState: UserState) {
                 }
 
                 if (youWin) {
-                    Spacer(modifier = Modifier.height(50.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     Text("Challenge a Friend to the Same Race:")
                     Spacer(modifier = Modifier.height(20.dp))
                     InviteFriends(currentUserState.currentUser.userId, currentPassageIndex, raceID)
@@ -452,7 +457,6 @@ fun ProgressBar(
     progress: Float
 ) {
     Column {
-        Text(text = "Progress: ${(progress * 100).toInt()}%", style = TextStyle(fontSize = 16.sp))
         LinearProgressIndicator(
             color = color,
             progress = progress,
@@ -460,7 +464,6 @@ fun ProgressBar(
         )
     }
 }
-
 
 @Composable
 fun Typer(
@@ -517,9 +520,9 @@ fun Typer(
                 append(passage.substring(0, userPosition))
             }
             withStyle(style = SpanStyle(background = Color.Red.copy(alpha = 0.6f))) {
-                append(passage.substring(userPosition, errorPosition))
+                append(passage.substring(userPosition, min(passage.length, errorPosition)))
             }
-            append(passage.substring(errorPosition))
+            append(passage.substring(min(passage.length, errorPosition)))
         },
         modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp)
     )

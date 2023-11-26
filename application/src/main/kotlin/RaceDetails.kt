@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -95,10 +96,6 @@ fun ChallengeDetails(currentUserState: UserState) {
         }
     }
 
-    print("---------------------------------------------")
-    print(localResultInfoList)
-    print("---------------------------------------------")
-
     val userDetails: MutableList<Challenge> = mutableListOf()
     val otherDetails: MutableList<Challenge> = mutableListOf()
 
@@ -107,42 +104,50 @@ fun ChallengeDetails(currentUserState: UserState) {
         otherDetails += Challenge(username = result.username2, score = result.user2WPM)
     }
 
-    //    val userDetails = Challenge(username = "bobsmith", score = 80)
-    //    val othersDetails =  listOf(
-    //        Challenge(username = "bob", score = 80),
-    //        Challenge(username = "samsmith", score = 75),
-    //        Challenge(username = "janesmith", score = 90),
-    //        Challenge(username = "smith", score = 85)
-    //    )
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                RowItem("Player", true)
-                RowItem("WPM", true)
-                RowItem("Status", true)
+    val myverticalAlignment = if (noRaces || localResultInfoList.isEmpty()) {
+        Arrangement.Center
+    } else {
+        Arrangement.Top
+    }
+
+    MaterialTheme {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp, 16.dp, 16.dp, 75.dp),
+            verticalArrangement = myverticalAlignment,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (noRaces || localResultInfoList.isEmpty()) {
+                item {
+                    Text("There is no head to head data. Challenge your friends to see your results!")
+                }
+            } else {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        RowItem("Player", true)
+                        RowItem("WPM", true)
+                        RowItem("Status", true)
+                    }
+
+                    Divider(
+                        color = Color.LightGray
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+
+                items(userDetails.size) { index ->
+                    ChallengeRow(userDetails[index], otherDetails[index])
+                    Divider(color = Color.LightGray)
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
             }
-
-            Divider(
-                color = Color.LightGray
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
         }
-
-        items(userDetails.size) { index ->
-            ChallengeRow(userDetails[index], otherDetails[index])
-            Divider(color = Color.LightGray)
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-
     }
 }
 
