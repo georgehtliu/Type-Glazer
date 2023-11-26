@@ -229,7 +229,7 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                                     if (success) {
                                         onDismiss.invoke()
                                     } else {
-                                        errorMessage = "Sign up failed. GG"
+                                        errorMessage = "Sign up failed. Please try again."
                                         loginStatus = LoginStatus.FAILURE
                                     }
                                 }

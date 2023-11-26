@@ -2,6 +2,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -79,19 +81,21 @@ fun DataTable(currentUserState: UserState) {
     }
 
     MaterialTheme {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            if (noRaces) {
-                Text("No races yet", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            if (noRaces || localRaceInfoList.isEmpty()) {
+                item {
+                    Text("There is no race data. Play some games to see your progress!")
+                }
             } else {
-                // Display the table
-                LazyColumn(
-                    Modifier.padding(8.dp)
-                ) {
-                    item {
+                    // Display the table
+                item {
+                    Box(
+                        Modifier.padding(8.dp)
+                    ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -101,28 +105,28 @@ fun DataTable(currentUserState: UserState) {
                             RowItem("WPM", true)
                         }
 
-                        Divider(
-                            color = Color.LightGray
-                        )
-                    }
-
-                    items(localRaceInfoList) { raceInfo ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            RowItem(raceInfo.raceNumber.toString(), false)
-                            RowItem(raceInfo.date, false)
-                            RowItem(raceInfo.wpm.toString(), false)
-                        }
-                        Divider(
-                            color = Color.LightGray
-                        )
                     }
                 }
+
+                items(localRaceInfoList) { raceInfo ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        RowItem(raceInfo.raceNumber.toString(), false)
+                        RowItem(raceInfo.date, false)
+                        RowItem(raceInfo.wpm.toString(), false)
+                    }
+                    Divider(
+                        color = Color.LightGray
+                    )
+                }
+
                 // Display the time graph
-                Spacer(modifier = Modifier.height(16.dp))
-                TimeGraphCanvas(localRaceInfoList)
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TimeGraphCanvas(localRaceInfoList)
+                }
             }
         }
     }
@@ -148,6 +152,7 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
+            .padding(bottom = 80.dp)
     ) {
         val maxX = raceData.size.toFloat()
         val maxY = raceData.maxByOrNull { it.wpm }?.wpm?.toFloat() ?: 1f
