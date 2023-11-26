@@ -29,6 +29,8 @@ data class RaceResultRequest(val userID: Int, val textID: Int, val date: String,
 data class ChallengeRequest(val fromUserID: Int, val toUsername: String, val textID: Int, val raceID: Int)
 @Serializable
 data class submitRaceResponse(val raceID: Int, val userID: Int, val textID: Int)
+@Serializable
+data class InsertResultRequest(val fromRaceID: Int, val toRaceID: Int)
 
 @Composable
 fun HomeScreen(currentUserState: UserState
@@ -167,6 +169,7 @@ fun Game(currentUserState: UserState) {
         var userPosition by remember { mutableStateOf(0) }
         var startTime by remember { mutableStateOf(0L) }
         var wpm by remember { mutableStateOf(0) }
+        var savedWpm by remember { mutableStateOf(0) }
         var youWin by remember { mutableStateOf(false) }
         var showStartButton by remember { mutableStateOf(true) }
         var wordsTyped by remember { mutableStateOf(0) }
@@ -242,10 +245,15 @@ fun Game(currentUserState: UserState) {
 
             // Call the function to submit the post request
             coroutineScope.launch(Dispatchers.Default) {
-                val success = submitRaceResult(currentUserState.currentUser.userId, wpm, currentPassageIndex)
+                savedWpm = wpm
+                val success = submitRaceResult(currentUserState.currentUser.userId, savedWpm, currentPassageIndex)
                 if (success != -1) {
                     println("[SUCCESSFUL] SUBMITTING RACE")
                     raceID = success
+                    if (currentUserState.acceptedChallengeRace.challengeRaceId != -1) {
+                        submitResult(currentUserState.acceptedChallengeRace.challengeRaceId, raceID)
+                        currentUserState.acceptedChallengeRace.challengeRaceId = -1
+                    }
                 } else {
                     println("[FAILED] SUBMITTING RACE")
                 }
@@ -267,7 +275,7 @@ fun Game(currentUserState: UserState) {
 
             if (showStartButton) {
                 Button(
-                    onClick = { startNewRace(); showStartButton = false; currentUserState.acceptedChallenge.textId = -1 }
+                    onClick = { startNewRace(); showStartButton = false; currentUserState.acceptedChallenge.textId = -1}
                 ) {
                     Text("Start Race")
                 }
@@ -302,7 +310,11 @@ fun Game(currentUserState: UserState) {
                     difficultyButtonGroup()
                 }
 
-                Text("WPM: $wpm")
+                if (youWin) {
+                    Text("WPM: $savedWpm")
+                } else {
+                    Text("WPM: $wpm")
+                }
 
                 if (youWin) {
                     Spacer(modifier = Modifier.height(50.dp))
@@ -377,6 +389,31 @@ suspend fun submitRaceResult(currentuserId: Int, wpm: Int, currenttextID: Int): 
     } catch (e: Exception) {
         // Handle exceptions if needed
         return -1
+    }
+}
+
+suspend fun submitResult(fromRaceId: Int, toRaceId: Int): Boolean {
+    val insertResultEndpoint = "http://localhost:5050/insertResult"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    try {
+
+        val response: HttpResponse = client.post(insertResultEndpoint) {
+            contentType(ContentType.Application.Json)
+            setBody(InsertResultRequest(fromRaceId, toRaceId))
+        }
+
+        // Close the client after the request
+        client.close()
+        // Handle the response if needed
+        return response.status.value in 200..299
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+        return false
     }
 }
 
