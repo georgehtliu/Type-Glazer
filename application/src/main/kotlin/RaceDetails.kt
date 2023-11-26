@@ -25,10 +25,10 @@ data class Challenge(
     val score: Int
 )
 @Serializable
-data class ResultInfo(val user1ID: Int, val user2ID: Int, val user1WPM: Int, val user2WPM: Int)
+data class ResultInfo(val user1ID: Int, val user2ID: Int, val user1WPM: Int, val user2WPM: Int, val username1: String, val username2: String)
 
 @Serializable
-data class ResultResponse(val resultID: Int, val user1ID: Int, val user2ID: Int, val user1WPM: Int, val user2WPM: Int)
+data class ResultResponse(val resultID: Int, val user1ID: Int, val user2ID: Int, val user1WPM: Int, val user2WPM: Int, val username1: String, val username2: String)
 @Serializable
 data class ResultListResponse(val results: List<ResultResponse>)
 
@@ -68,7 +68,7 @@ suspend fun getResults(currentuserId: Int): Boolean {
 
         // Populate RaceInfoList with data from sortedRaceResList
         ResultInfoList = resultResList.mapIndexed { index, resultResponse ->
-            ResultInfo(resultResponse.user1ID, resultResponse.user2ID, resultResponse.user1WPM, resultResponse.user2WPM)
+            ResultInfo(resultResponse.user1ID, resultResponse.user2ID, resultResponse.user1WPM, resultResponse.user2WPM, resultResponse.username1, resultResponse.username2)
         }.toMutableList()
 
         client.close()
@@ -103,8 +103,8 @@ fun ChallengeDetails(currentUserState: UserState) {
     val otherDetails: MutableList<Challenge> = mutableListOf()
 
     for (result in localResultInfoList) {
-        userDetails += Challenge(username = result.user1ID.toString(), score = result.user1WPM)
-        otherDetails += Challenge(username = result.user2ID.toString(), score = result.user2WPM)
+        userDetails += Challenge(username = result.username1, score = result.user1WPM)
+        otherDetails += Challenge(username = result.username2, score = result.user2WPM)
     }
 
     //    val userDetails = Challenge(username = "bobsmith", score = 80)
