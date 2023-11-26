@@ -1,11 +1,15 @@
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.ktor.client.*
@@ -21,9 +25,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.withStyle
 
 @Serializable
 data class RaceResultRequest(val userID: Int, val textID: Int, val date: String, val wpm: Int)
@@ -331,8 +332,33 @@ fun Game(currentUserState: UserState) {
     }
 }
 
+// Aet user ID by username
+suspend fun getUserIDByUsername(username: String): Int {
+    val getUserIDEndpoint = "http://localhost:5050/users/id?username=$username"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    try {
+        val response: HttpResponse = client.get(getUserIDEndpoint)
+        client.close()
+        // Return the user ID
+        return Json.decodeFromString(response.bodyAsText())
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+        return -1
+    }
+}
 
 suspend fun submitChallenge(currentuserId: Int, challengeuserName: String, currenttextID: Int, currentraceID: Int): Boolean {
+    // Check if the user is trying to challenge themselves
+    // If so, don't allow it
+    if (currentuserId == getUserIDByUsername(challengeuserName)) {
+        return false
+    }
+
     val insertChallengeEndpoint = "http://localhost:5050/challenges/send"
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
