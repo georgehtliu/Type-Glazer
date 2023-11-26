@@ -21,27 +21,27 @@ sealed class BottomNavScreen(
     val icon: ImageVector
 ) {
     object Home : BottomNavScreen(
-        title = "Home",
-        icon = Icons.Default.Home
-    )
-
-    object Settings : BottomNavScreen(
-        title = "Settings",
-        icon = Icons.Default.Settings
+        title = "Race",
+        icon = Icons.Default.PlayArrow
     )
 
     object Data : BottomNavScreen (
-        title = "Data",
+        title = "Race Data",
         icon = Icons.Default.DateRange
     )
 
     object MyChallenges : BottomNavScreen (
-        title = "MyChallenges",
+        title = "My Challenges",
         icon = Icons.Default.Favorite
     )
 
     object RaceDetails : BottomNavScreen (
-        title = "RaceDetails",
-        icon = Icons.Default.Favorite
+        title = "Head to Head",
+        icon = Icons.Default.Star
+    )
+
+    object Settings : BottomNavScreen(
+        title = "Log Out",
+        icon = Icons.Default.Settings
     )
 }

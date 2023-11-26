@@ -137,7 +137,7 @@ fun App(
 
 @Composable
 fun ShowMainScreens(onLogout: () -> Unit) {
-    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Settings, BottomNavScreen.Data, BottomNavScreen.MyChallenges, BottomNavScreen.RaceDetails)
+    val screens = listOf(BottomNavScreen.Home, BottomNavScreen.Data, BottomNavScreen.MyChallenges, BottomNavScreen.RaceDetails, BottomNavScreen.Settings)
     var selected by remember { mutableStateOf(screens.first()) }
 
     Scaffold(
@@ -157,10 +157,10 @@ fun ShowMainScreens(onLogout: () -> Unit) {
         content = {
             when (selected) {
                 BottomNavScreen.Home -> HomeScreen(UserState)
-                BottomNavScreen.Settings -> SettingsScreen(onLogout)
                 BottomNavScreen.Data -> DataTable(UserState)
                 BottomNavScreen.MyChallenges -> MyChallenges(onAccept = {selected = BottomNavScreen.Home}, UserState)
                 BottomNavScreen.RaceDetails -> ChallengeDetails(UserState)
+                BottomNavScreen.Settings -> SettingsScreen(onLogout)
             }
         }
     )
@@ -192,11 +192,11 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                         .wrapContentHeight(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Welcome to the Farm Racer!")
+                    Text("Welcome to the Type Glazer!")
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("We're glad to have you here.")
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Simply sign in and begin competing in typing competitions with your favorite farm animals")
+                    Text("Simply sign in and begin glazing some donuts!")
                     Spacer(modifier = Modifier.height(16.dp))
                     SignUpPrompt(username, password, { username = it }, { password = it }, isSignInMode)
                     Spacer(modifier = Modifier.height(16.dp))

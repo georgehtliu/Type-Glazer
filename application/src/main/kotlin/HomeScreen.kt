@@ -91,7 +91,7 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
                 }
             }
         ) {
-            Text("Invite")
+            Text("Challenge")
         }
     }
 }
