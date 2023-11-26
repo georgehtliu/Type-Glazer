@@ -99,13 +99,21 @@ fun ChallengeDetails(currentUserState: UserState) {
     print(localResultInfoList)
     print("---------------------------------------------")
 
-    val userDetails = Challenge(username = "bobsmith", score = 80)
-    val othersDetails =  listOf(
-        Challenge(username = "bob", score = 80),
-        Challenge(username = "samsmith", score = 75),
-        Challenge(username = "janesmith", score = 90),
-        Challenge(username = "smith", score = 85)
-    )
+    val userDetails: MutableList<Challenge> = mutableListOf()
+    val otherDetails: MutableList<Challenge> = mutableListOf()
+
+    for (result in localResultInfoList) {
+        userDetails += Challenge(username = result.user1ID.toString(), score = result.user1WPM)
+        otherDetails += Challenge(username = result.user2ID.toString(), score = result.user2WPM)
+    }
+
+    //    val userDetails = Challenge(username = "bobsmith", score = 80)
+    //    val othersDetails =  listOf(
+    //        Challenge(username = "bob", score = 80),
+    //        Challenge(username = "samsmith", score = 75),
+    //        Challenge(username = "janesmith", score = 90),
+    //        Challenge(username = "smith", score = 85)
+    //    )
 
     LazyColumn(
         modifier = Modifier
@@ -129,16 +137,14 @@ fun ChallengeDetails(currentUserState: UserState) {
             Spacer(modifier = Modifier.height(10.dp))
         }
 
-        items(othersDetails) { detail ->
-                ChallengeRow(userDetails, detail)
-                Divider(
-                    color = Color.LightGray
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-            }
+        items(userDetails.size) { index ->
+            ChallengeRow(userDetails[index], otherDetails[index])
+            Divider(color = Color.LightGray)
+            Spacer(modifier = Modifier.height(10.dp))
         }
+
     }
+}
 
 @Composable
 fun ChallengeRow(user: Challenge, other: Challenge) {
