@@ -7,5 +7,7 @@ data class Result(
     val user1ID: Int,
     val user2ID: Int,
     val user1WPM: Int,
-    val user2WPM: Int
+    val user2WPM: Int,
+    val username1: String,
+    val username2: String
 )
