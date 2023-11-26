@@ -151,6 +151,8 @@ fun MyChallenges(onAccept: () -> Unit, userState: UserState, ) {
 }
 
 
+
+
 @Composable
 fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallenge: challengeAcceptedTextId, refreshChallenges: suspend () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
@@ -172,6 +174,7 @@ fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallen
             coroutineScope.launch(Dispatchers.Default) {
                 acceptedChallenge.textId = challenge.textID
                 onAccept()
+                deleteChallenge(challenge.challengeID)
             }
         })
         Spacer(modifier = Modifier.width(8.dp))
