@@ -1,8 +1,8 @@
 package com.typeracer.routes
 
-import com.typeracer.data.schema.Users
-import com.typeracer.data.model.User
 import com.typeracer.data.model.CreateUserRequest
+import com.typeracer.data.model.User
+import com.typeracer.data.schema.Users
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -10,8 +10,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -27,6 +25,26 @@ fun Route.userRoutes() {
             }
         }
         call.respondText(Json.encodeToString(users), ContentType.Application.Json)
+    }
+
+    get("/users/id") {
+        val username = call.request.queryParameters["username"]
+
+        if (username != null) {
+            val userId = transaction {
+                Users.select { (Users.username eq username) }
+                    .map { it[Users.userID] }
+                    .singleOrNull()
+            }
+
+            if (userId != null) {
+                call.respondText(userId.toString(), ContentType.Application.Json)
+            } else {
+                call.respondText("User not found", status = HttpStatusCode.NotFound)
+            }
+        } else {
+            call.respondText("Invalid request", status = HttpStatusCode.BadRequest)
+        }
     }
 
     post("/createNewUser") {
@@ -46,7 +64,7 @@ fun Route.userRoutes() {
             }
 
             val foundUser = transaction {
-                Users.select { (Users.username eq username) and (Users.password eq password) }
+                Users.select { (Users.username eq username) }
                     .map { User(it[Users.userID], it[Users.username], it[Users.email], it[Users.password]) }
                     .singleOrNull()
             }
