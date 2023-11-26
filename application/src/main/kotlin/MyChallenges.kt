@@ -139,7 +139,7 @@ fun MyChallenges(onAccept: () -> Unit, userState: UserState, ) {
         contentAlignment = Alignment.Center
     ) {
         if (challenges.isEmpty()) {
-            Text("There are no challenges.")
+            Text("There are no incoming challenges.")
         } else {
             LazyColumn {
                 items(challenges) { challenge ->

@@ -65,37 +65,6 @@ fun SignUpPrompt(
     }
 }
 
-
-
-@Composable
-fun BugReportForm(onSubmit: (String) -> Unit) {
-    var bugDescription by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text("Found a bug on the website? Let us know!")
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextField(
-            value = bugDescription,
-            onValueChange = { bugDescription = it },
-            label = { Text("Bug Description") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(onClick = { onSubmit(bugDescription) }) {
-            Text("Submit Bug Report")
-        }
-    }
-}
-
 class PasswordVisualTransformation(private val passwordLength: Int) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val passwordText = "*".repeat(passwordLength)
@@ -112,20 +81,4 @@ class PasswordVisualTransformation(private val passwordLength: Int) : VisualTran
             }
         )
     }
-}
-
-fun runQueryOnClick () {
-    println("signup")
-}
-
-suspend fun queryWebsite(): String {
-    val site = "https://ktor.io/"
-    val client = HttpClient(CIO)
-    val response: HttpResponse = client.get(site)
-    client.close()
-
-    if (response.status.value in 200..299) {
-        return "SITE: ${site} \nSTATUS: ${response.status.value}\nHEADER: ${response.headers}\nCONTENT: ${response.body<String>().length} bytes\n"
-    } else
-        return "STATUS: ${response.status.value}"
 }
