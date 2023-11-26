@@ -36,7 +36,7 @@ data class ChallengeResponse(val challengeID: Int, val fromUsername: String, val
 data class ChallengeListResponse(val challenges: List<ChallengeResponse>)
 
 @Serializable
-data class ChallengeInfo(val fromUsername: String, val textID: Int, val challengeID: Int)
+data class ChallengeInfo(val fromUsername: String, val textID: Int, val challengeID: Int, val challengeRaceID: Int)
 
 var ChallengeList = mutableListOf<ChallengeInfo>()
 
@@ -72,7 +72,7 @@ suspend fun getChallenges(currentuserId: Int): Boolean {
         println(sortedChallengeResList)
 
         ChallengeList = sortedChallengeResList.mapIndexed { index, challengeResponse ->
-            ChallengeInfo(challengeResponse.fromUsername, challengeResponse.textID, challengeResponse.challengeID)
+            ChallengeInfo(challengeResponse.fromUsername, challengeResponse.textID, challengeResponse.challengeID, challengeResponse.raceID)
         }.toMutableList()
 
         println(ChallengeList)
@@ -143,7 +143,7 @@ fun MyChallenges(onAccept: () -> Unit, userState: UserState, ) {
         } else {
             LazyColumn {
                 items(challenges) { challenge ->
-                    ChallengeRow(challenge = challenge, onAccept, userState.acceptedChallenge, refreshChallenges)
+                    ChallengeRow(challenge = challenge, onAccept, userState.acceptedChallenge, userState.acceptedChallengeRace, refreshChallenges)
                 }
             }
         }
@@ -152,7 +152,7 @@ fun MyChallenges(onAccept: () -> Unit, userState: UserState, ) {
 
 
 @Composable
-fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallenge: challengeAcceptedTextId, refreshChallenges: suspend () -> Unit) {
+fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallenge: challengeAcceptedTextId, acceptedChallengeRace: challengeAcceptedRaceId, refreshChallenges: suspend () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
 
     Row(
@@ -171,6 +171,7 @@ fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallen
         ChallengeButton(text = "Accept", onClick = {
             coroutineScope.launch(Dispatchers.Default) {
                 acceptedChallenge.textId = challenge.textID
+                acceptedChallengeRace.challengeRaceId = challenge.challengeRaceID
                 onAccept()
             }
         })

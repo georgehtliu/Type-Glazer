@@ -11,21 +11,109 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 data class Challenge(
     val username: String,
     val score: Int
 )
+@Serializable
+data class ResultInfo(val user1ID: Int, val user2ID: Int, val user1WPM: Int, val user2WPM: Int, val username1: String, val username2: String)
+
+@Serializable
+data class ResultResponse(val resultID: Int, val user1ID: Int, val user2ID: Int, val user1WPM: Int, val user2WPM: Int, val username1: String, val username2: String)
+@Serializable
+data class ResultListResponse(val results: List<ResultResponse>)
+
+var ResultInfoList = mutableListOf<ResultInfo>()
+
+suspend fun getResults(currentuserId: Int): Boolean {
+    val getResultsEndpoint = "http://localhost:5050/getResult?userID=$currentuserId"
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
+
+    try {
+
+        print("hello 0")
+
+
+        val responseBody: String = client.get(getResultsEndpoint).body()
+
+        print("helo 1")
+        print(responseBody)
+
+        val resultListResponse: ResultListResponse = Json.decodeFromString("""{
+    "results": $responseBody
+}""")
+
+        print("helo 2")
+        val resultResList: List<ResultResponse> = resultListResponse.results
+
+        print("helo 3")
+
+        print(resultResList)
+
+        // Populate RaceInfoList with data from sortedRaceResList
+        ResultInfoList = resultResList.mapIndexed { index, resultResponse ->
+            ResultInfo(resultResponse.user1ID, resultResponse.user2ID, resultResponse.user1WPM, resultResponse.user2WPM, resultResponse.username1, resultResponse.username2)
+        }.toMutableList()
+
+        client.close()
+        return true
+    } catch (e: Exception) {
+        print("AN ERROR OCCUREED")
+        print(e)
+        // Handle exceptions if needed
+        return false
+    }
+}
 
 @Composable
-fun ChallengeDetails() {
-    val userDetails = Challenge(username = "bobsmith", score = 80)
-    val othersDetails =  listOf(
-        Challenge(username = "bob", score = 80),
-        Challenge(username = "samsmith", score = 75),
-        Challenge(username = "janesmith", score = 90),
-        Challenge(username = "smith", score = 85)
-    )
+fun ChallengeDetails(currentUserState: UserState) {
+
+    var localResultInfoList by remember { mutableStateOf(listOf<ResultInfo>()) }
+    var noRaces by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        val success = getResults(currentUserState.currentUser.userId)
+        if (success) {
+            localResultInfoList = ResultInfoList
+            noRaces = localResultInfoList.isEmpty()
+        }
+    }
+
+    print("---------------------------------------------")
+    print(localResultInfoList)
+    print("---------------------------------------------")
+
+    val userDetails: MutableList<Challenge> = mutableListOf()
+    val otherDetails: MutableList<Challenge> = mutableListOf()
+
+    for (result in localResultInfoList) {
+        userDetails += Challenge(username = result.username1, score = result.user1WPM)
+        otherDetails += Challenge(username = result.username2, score = result.user2WPM)
+    }
+
+    //    val userDetails = Challenge(username = "bobsmith", score = 80)
+    //    val othersDetails =  listOf(
+    //        Challenge(username = "bob", score = 80),
+    //        Challenge(username = "samsmith", score = 75),
+    //        Challenge(username = "janesmith", score = 90),
+    //        Challenge(username = "smith", score = 85)
+    //    )
 
     LazyColumn(
         modifier = Modifier
@@ -49,16 +137,14 @@ fun ChallengeDetails() {
             Spacer(modifier = Modifier.height(10.dp))
         }
 
-        items(othersDetails) { detail ->
-                ChallengeRow(userDetails, detail)
-                Divider(
-                    color = Color.LightGray
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-            }
+        items(userDetails.size) { index ->
+            ChallengeRow(userDetails[index], otherDetails[index])
+            Divider(color = Color.LightGray)
+            Spacer(modifier = Modifier.height(10.dp))
         }
+
     }
+}
 
 @Composable
 fun ChallengeRow(user: Challenge, other: Challenge) {
