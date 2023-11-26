@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -80,12 +81,19 @@ fun DataTable(currentUserState: UserState) {
         }
     }
 
+    val myverticalAlignment = if (noRaces || localRaceInfoList.isEmpty()) {
+        Arrangement.Center
+    } else {
+        Arrangement.Top
+    }
+
     MaterialTheme {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-        ) {
+                .padding(16.dp, 16.dp, 16.dp, 75.dp),
+            verticalArrangement = myverticalAlignment,
+            horizontalAlignment = Alignment.CenterHorizontally) {
             if (noRaces || localRaceInfoList.isEmpty()) {
                 item {
                     Text("There is no race data. Play some games to see your progress!")
@@ -93,19 +101,19 @@ fun DataTable(currentUserState: UserState) {
             } else {
                     // Display the table
                 item {
-                    Box(
-                        Modifier.padding(8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            RowItem("Race Number", true)
-                            RowItem("Date", true)
-                            RowItem("WPM", true)
-                        }
 
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        RowItem("Race Number", true)
+                        RowItem("Date", true)
+                        RowItem("WPM", true)
                     }
+                    Divider(
+                        color = Color.LightGray
+                    )
+
                 }
 
                 items(localRaceInfoList) { raceInfo ->
@@ -152,7 +160,7 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-            .padding(bottom = 80.dp)
+            .padding(bottom = 60.dp)
     ) {
         val maxX = raceData.size.toFloat()
         val maxY = raceData.maxByOrNull { it.wpm }?.wpm?.toFloat() ?: 1f
