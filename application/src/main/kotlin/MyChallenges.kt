@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -20,12 +21,6 @@ import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -174,8 +169,11 @@ fun ChallengeRow(challenge: ChallengeInfo, onAccept: () -> Unit, acceptedChallen
             coroutineScope.launch(Dispatchers.Default) {
                 acceptedChallenge.textId = challenge.textID
                 acceptedChallengeRace.challengeRaceId = challenge.challengeRaceID
+                val success = deleteChallenge(challenge.challengeID)
+                if (success) {
+                    refreshChallenges()
+                }
                 onAccept()
-                deleteChallenge(challenge.challengeID)
             }
         })
         Spacer(modifier = Modifier.width(8.dp))
