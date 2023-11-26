@@ -21,6 +21,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.withStyle
 
 @Serializable
 data class RaceResultRequest(val userID: Int, val textID: Int, val date: String, val wpm: Int)
@@ -144,26 +147,26 @@ fun Game(currentUserState: UserState) {
         passages[37] = "The journey of a thousand miles begins with one step."
         passages[38] = "In the end, it's not the years in your life that count. It's the life in your years."
         passages[39] = "Life is really simple, but we insist on making it complicated."
-        passages[40] = "In three words I can sum up everything I've learned about life: it goes on."
-        passages[41] = "Life is what happens when you're busy making other plans."
-        passages[42] = "Many of life's failures are people who did not realize how close they were to success when they gave up."
-        passages[43] = "If you want to live a happy life, tie it to a goal, not to people or things."
-        passages[44] = "Never let the fear of striking out keep you from playing the game."
-        passages[45] = "The purpose of our lives is to eat."
-        passages[46] = "Life is never fair, and perhaps it is a good thing for most of us that it is not."
-        passages[47] = "The biggest adventure you can take is to live the life of your dreams."
-        passages[48] = "Life is short, and it's up to you to make it sweet."
-        passages[49] = "Life doesn't require that we be the best, only that we try our best."
-        passages[50] = "I have found that if you love life, life will love you back."
-        passages[51] = "Life is really simple, but men insist on making it complicated."
-        passages[52] = "You have within you right now, everything you need to deal with whatever the world can throw at you."
-        passages[53] = "Life is a succession of lessons which must be lived to be understood."
-        passages[54] = "My mission in life is not merely to survive, but to thrive; and to do so with some passion, some compassion, some humor, and some style."
-        passages[55] = "Life is like a coin. You can spend it any way you wish, but you only spend it once."
-        passages[56] = "Cinnabon and ice cream glaze! What a combination! Most gluttonous food possible."
-        passages[57] = "To live is the rarest thing in the world. Most people exist, that is all."
-        passages[58] = "Life is what we make it, always has been, always will be."
-        passages[59] = "Life is either a daring adventure or nothing at all."
+        passages[40] = "By the pricking of my thumbs, something wicked this way comes. In the shadows of night, where the veil 'twixt reality and illusion is thin, Macbeth, that tragic figure, traverses the murky corridors of his fate. The spectral cauldron of ambition boils o'er with dire prophecies, as the fateful incantations of the Weird Sisters permeate the air like an ominous refrain. 'Is this a dagger which I see before me?' he wonders, as the spectral hands of guilt and treachery clutch at his tormented soul."
+        passages[41] = "Hark! A tempest brews in yon celestial realm, where ethereal sprites cavort in twilight's argent glow. Amidst the sylvan glades, whence the enigmatic moon weaves a silken tapestry, fair Puck, that mischievous imp of Midsummer's lore, spins whimsical verses, casting eldritch charms upon the starlit ebon sky."
+        passages[42] = "Cinnabon, the aromatic haven where the sweet symphony of cinnamon and dough converges, is not merely a treat; it's an indulgent journey into the heart of comfort and decadence. Stepping into Cinnabon is like entering a fragrant sanctuary, where the scent of freshly baked rolls lures you into a world of blissful anticipation"
+        passages[43] = "Computers, the silent architects of our digital age, transcend mere machines; they are the catalysts of innovation, the engines propelling us into the future. With each keystroke and pixel, computers weave the intricate tapestry of our interconnected world, transforming ideas into reality and data into insights."
+        passages[44] = "Gyubee, a culinary sanctuary where the art of grilling meets the joy of shared moments, invites you to embark on a journey of sizzling flavors and communal delight. Stepping into Gyubee is like entering a realm where time slows, and the aroma of premium meats grilling on tabletop barbecue grates becomes a tantalizing prelude to a feast."
+        passages[45] = "The Chinese Communist Party (CCP), a force at the helm of a nation's destiny, stands as a multifaceted entity shaping the narrative of a country steeped in history and innovation. Like a guardian of the Middle Kingdom's aspirations, the CCP has navigated a complex path, overseeing a dramatic transformation from an agrarian society to an economic powerhouse."
+        passages[46] = "Lionel Messi, the maestro of the soccer pitch, is more than a player; he is a symphony of skill, a virtuoso whose every touch on the ball is a brushstroke on the canvas of football history. In the rhythmic dance between Messi and the ball, we witness the fusion of artistry and athleticism, a masterpiece painted with precision and passion."
+        passages[47] = "East Side Mario's, a culinary haven where the spirit of Italy dances on every plate, invites you to savor the flavors of amore in a vibrant and welcoming atmosphere. Stepping into this gastronomic haven is like crossing a threshold into an Italian trattoria, where the aroma of garlic, tomatoes, and simmering sauces envelops you in a warm embrace."
+        passages[48] = "In the push and pull of each repetition, the dumbbell chest press becomes a dialogue between body and iron, forging a connection that goes beyond the physical. The burn in the muscles becomes a melody of perseverance, a composition of sweat and determination that plays out on the canvas of the gym."
+        passages[49] = "Kevin Durant, the towering titan on the basketball court, exudes a brilliance that extends far beyond the game. Yet, even a superstar like Durant may find his legs whispering a plea for hydration in the form of ashy skin. In the symphony of athletic prowess, the subtle notes of dryness become a reminder that even the most celebrated figures are, at their essence, human."
+        passages[50] = "Josh Giddey, the basketball prodigy from down under, has emerged as a phenom on the global stage, weaving his own narrative of skill, vision, and unparalleled court presence. With a basketball IQ that belies his youth, Giddey conducts the game like a seasoned maestro orchestrating a symphony."
+        passages[51] = "In his prime, Rose was a blur of explosive athleticism and finesse, a point guard whose crossovers left defenders in his wake and whose acrobatic finishes at the rim defied gravity. The MVP title he earned in 2011 was not just an accolade; it was a recognition of a player who had become the heartbeat of a city and a symbol of hope for fans worldwide."
+        passages[52] = "Gordon Ramsay, the culinary maestro with a palate as sharp as his wit, brings to the kitchen an alchemy of passion, precision, and unapologetic authenticity. His culinary prowess is a symphony of flavors, orchestrated with the finesse of a seasoned conductor. Behind the tough exterior and no-nonsense demeanor lies a chef driven by an unwavering commitment to excellence."
+        passages[53] = "Ray Allen, the maestro of the three-point arc, etched his name in basketball history with a shot that defied the limits of time and precision. As the seconds dwindled in Game 6 of the NBA Finals, the Miami Heat trailed the San Antonio Spurs. The ball found its way to Allen beyond the arc, and with the cool composure that defined his career, he released a shot that would be eternally etched in the annals of the sport."
+        passages[54] = "In the delightful dance of flavors, pizza and donuts take center stage as the culinary duo that turns ordinary moments into extraordinary memories. A slice of pizza, adorned with a mosaic of toppings, is a savory symphony that tantalizes the taste buds, while a donut, glazed to perfection, is a sweet indulgence that brings joy with every bite. Together, they create a harmonious blend of savory and sweet, a gastronomic pas de deux that transcends the ordinary."
+        passages[55] = "In the heart of the arena, the atmosphere was electric, with the buzz of excited fans reverberating through the air. The tension was palpable as the two teams battled fiercely on the court, each possession a crucial moment in the game. The star player dribbled down the court, showcasing incredible ball-handling skills that left defenders in their wake. The crowd erupted into cheers as the player executed a flawless slam dunk, adding to the highlight reel of the night."
+        passages[56] = "In the quiet embrace of a midnight library, James found inspiration beneath the soft glow of reading lamps. The hushed whispers of book pages turning mingled with the tap-tap-tap of his keyboard as he wove a mystery that mirrored the enigmatic atmosphere of the space. The creaking of leather chairs and the distant footsteps of the lone librarian created an ambiance that wrapped around his writing, turning the library into a nocturnal muse for his literary endeavors."
+        passages[57] = "Amidst the aromatic chaos of a busy kitchen, Chef Elena perched on a stool, laptop open beside her cutting board. Her culinary adventures unfolded through a digital narrative, the sizzle of pans and the hiss of simmering sauces providing a backdrop for her gastronomic tales. The rhythmic chopping of vegetables and the occasional clatter of plates formed a culinary symphony, complementing the savory stories she penned with each culinary creation."
+        passages[58] = "As the train rumbled along the tracks, Alex carved out a mobile writing haven at a quaint window seat. The rhythmic clatter of wheels on steel served as a steady beat for his prose, capturing the fleeting landscapes that blurred past his view. The sound of the train became an integral part of his narrative, a journey in both words and motion, with each paragraph mirroring the changing scenes outside his window."
+        passages[59] = "The old typewriter, a relic from a bygone era, sat on the antique desk in the corner of the room. Its keys clacked with a nostalgic resonance as Michael channeled the spirit of classic literature, transported back in time by the mechanical symphony of the vintage machine. The ticking of the typewriter became a metronome for his words, each keystroke a deliberate step into a literary realm that echoed the elegance of days past."
 
         var currentPassageIndex by remember { mutableStateOf(0) }
         var userPosition by remember { mutableStateOf(0) }
@@ -482,19 +485,18 @@ fun Typer(
         onCharactersTyped(userPosition, errorPosition.toLong(), wordCount)
     }
 
-    Row {
-        passage.forEachIndexed { idx, it ->
-            Surface(
-                color = if (idx < userPosition) Color.Transparent else if (idx < errorPosition) Color.Red.copy(alpha = 0.6f) else Color.Transparent,
-                modifier = Modifier.wrapContentSize()
-            ) {
-                Text(
-                    text = it.toString(),
-                    color = if (idx < userPosition) Color.Green else Color.Black,
-                )
+    Text(
+        text = buildAnnotatedString {
+            withStyle(style = SpanStyle(color = Color.Green)) {
+                append(passage.substring(0, userPosition))
             }
-        }
-    }
+            withStyle(style = SpanStyle(background = Color.Red.copy(alpha = 0.6f))) {
+                append(passage.substring(userPosition, errorPosition))
+            }
+            append(passage.substring(errorPosition))
+        },
+        modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp)
+    )
 
     TextField(
         value = value,
@@ -503,3 +505,4 @@ fun Typer(
         modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp),
     )
 }
+
