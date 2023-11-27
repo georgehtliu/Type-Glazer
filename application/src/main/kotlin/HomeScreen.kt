@@ -54,7 +54,7 @@ fun HomeScreen(currentUserState: UserState
     Game(currentUserState)
 }
 
-suspend fun fetchUsers(): List<User> {
+suspend fun fetchUsers(currentuserID: Int): List<User> {
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()
@@ -84,7 +84,7 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
 
     // Fetch users
     val users = produceState(initialValue = emptyList<User>(), producer = {
-        value = fetchUsers()
+        value = fetchUsers(currentuserID)
     })
 
     Column(
@@ -146,8 +146,10 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
             modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            val filteredUsers = users.value.filter { it.username.contains(text, ignoreCase = true) }
-            LazyColumn {
+            val filteredUsers = users.value.filter { it.username.contains(text, ignoreCase = true) && it.userID != currentuserID }
+            LazyColumn (
+                modifier = Modifier.padding(bottom = 70.dp)
+            ){
                 items(filteredUsers) { user ->
                     ClickableText(
                         text = AnnotatedString(user.username),
