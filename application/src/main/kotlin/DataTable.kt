@@ -180,22 +180,12 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
 
         // Draw x-axis label
         val xAxisLabel = textMeasurer.measure(
-            AnnotatedString("Race #"),
+            AnnotatedString("Race Number"),
             TextStyle(fontSize = 10.sp)
         )
         drawText(
             textLayoutResult = xAxisLabel,
             topLeft = Offset(size.width / 2, size.height + 40f),
-        )
-
-        // Draw y-axis label
-        val yAxisLabel = textMeasurer.measure(
-            AnnotatedString("WPM"),
-            TextStyle(fontSize = 10.sp)
-        )
-        drawText(
-            textLayoutResult = yAxisLabel,
-            topLeft = Offset(paddingStart - 55f, size.height / 2),
         )
 
         // Draw title
@@ -241,8 +231,26 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
                 drawLine(start = Offset(prevX, prevY), end = Offset(x, y), color = Color.Blue)
             }
         }
+
+        // Draw y-values on the y-axis
+        val yIncrement = maxY / 5
+        for (i in 0..5) {
+            val yValue = (yIncrement * i).toInt()
+            val yValueLabel = textMeasurer.measure(
+                AnnotatedString("$yValue"),
+                TextStyle(fontSize = 10.sp)
+            )
+            val mark = size.height - ((i * yIncrement / maxY) * (size.height - 20))
+            drawText(
+                textLayoutResult = yValueLabel,
+                topLeft = Offset(paddingStart - 70f, mark + 5f),
+            )
+        }
     }
 }
+
+
+
 
 
 
