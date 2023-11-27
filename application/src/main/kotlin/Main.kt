@@ -232,7 +232,7 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Text("Simply sign in and begin glazing some donuts!")
                         Spacer(modifier = Modifier.height(16.dp))
-                        SignUpPrompt(username, password, { username = it }, { password = it }, isSignInMode) { onSubmit() }
+                        SignUpPrompt(username, password, { loginStatus = LoginStatus.NONE; username = it }, { loginStatus = LoginStatus.NONE; password = it }, isSignInMode) { onSubmit() }
                         Spacer(modifier = Modifier.height(16.dp))
 
                         if (loginStatus == LoginStatus.FAILURE) {
@@ -247,7 +247,7 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Button(onClick = {
-
+                                onSubmit()
                             }) {
                                 if (isSignInMode) {
                                     Text("Sign In")
@@ -265,7 +265,6 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Button(onClick = {
-                                onSubmit()
                                 isSignInMode = !isSignInMode
                                 loginStatus = LoginStatus.NONE
                             }) {

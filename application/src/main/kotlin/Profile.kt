@@ -58,7 +58,9 @@ fun SignUpPrompt(
             ),
             modifier = Modifier.fillMaxWidth().onKeyEvent { event ->
                 if (event.key == Key.Enter) {
-                    onSubmit()
+                    if (username != "" && password != "") {
+                        onSubmit()
+                    }
                     true
                 } else {
                     false
