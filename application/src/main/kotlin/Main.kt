@@ -186,6 +186,30 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
 
     val coroutineScope = rememberCoroutineScope()
 
+    fun onSubmit() {
+        if (isSignInMode) {
+            coroutineScope.launch(Dispatchers.Default) {
+                val success = login(username, password, currentuserId)
+                if (success) {
+                    onDismiss.invoke()
+                } else {
+                    errorMessage = "Invalid username or password. Please try again."
+                    loginStatus = LoginStatus.FAILURE
+                }
+            }
+        } else {
+            coroutineScope.launch(Dispatchers.Default) {
+                val success = signup(username, password, currentuserId)
+                if (success) {
+                    onDismiss.invoke()
+                } else {
+                    errorMessage = "Sign up failed. Please try again."
+                    loginStatus = LoginStatus.FAILURE
+                }
+            }
+        }
+    }
+
     MaterialTheme {
         Scaffold(
             content = {
@@ -208,7 +232,7 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Text("Simply sign in and begin glazing some donuts!")
                         Spacer(modifier = Modifier.height(16.dp))
-                        SignUpPrompt(username, password, { username = it }, { password = it }, isSignInMode)
+                        SignUpPrompt(username, password, { username = it }, { password = it }, isSignInMode) { onSubmit() }
                         Spacer(modifier = Modifier.height(16.dp))
 
                         if (loginStatus == LoginStatus.FAILURE) {
@@ -223,27 +247,7 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Button(onClick = {
-                                if (isSignInMode) {
-                                    coroutineScope.launch(Dispatchers.Default) {
-                                        val success = login(username, password, currentuserId)
-                                        if (success) {
-                                            onDismiss.invoke()
-                                        } else {
-                                            errorMessage = "Invalid username or password. Please try again."
-                                            loginStatus = LoginStatus.FAILURE
-                                        }
-                                    }
-                                } else {
-                                    coroutineScope.launch(Dispatchers.Default) {
-                                        val success = signup(username, password, currentuserId)
-                                        if (success) {
-                                            onDismiss.invoke()
-                                        } else {
-                                            errorMessage = "Sign up failed. Please try again."
-                                            loginStatus = LoginStatus.FAILURE
-                                        }
-                                    }
-                                }
+
                             }) {
                                 if (isSignInMode) {
                                     Text("Sign In")
@@ -261,6 +265,7 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Button(onClick = {
+                                onSubmit()
                                 isSignInMode = !isSignInMode
                                 loginStatus = LoginStatus.NONE
                             }) {
