@@ -10,6 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
@@ -24,6 +26,7 @@ import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlin.math.max
 
 data class RaceInfo(val raceNumber: Int, val date: String, val wpm: Int)
 
@@ -175,6 +178,29 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
         // Draw y-axis
         drawLine(start = Offset(paddingStart, 0f), end = Offset(paddingStart, size.height), color = Color.Black)
 
+        // Draw x-axis label
+        val xAxisLabel = textMeasurer.measure(
+            AnnotatedString("Race Number"),
+            TextStyle(fontSize = 10.sp)
+        )
+        drawText(
+            textLayoutResult = xAxisLabel,
+            topLeft = Offset(size.width / 2, size.height + 40f),
+        )
+
+        // Draw title
+        val title = textMeasurer.measure(
+            AnnotatedString("Typing Progress"),
+            TextStyle(fontSize = 16.sp)
+        )
+        drawText(
+            textLayoutResult = title,
+            topLeft = Offset(size.width / 2, 30f),
+        )
+
+        // Calculate x-axis increment
+        val increment = max(1, (maxX / 10).toInt())
+
         // Draw data points
         raceData.forEachIndexed { index, data ->
             val x = if (maxX > 1) {
@@ -187,40 +213,45 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
 
             drawCircle(color = Color.Blue, radius = 3f, center = Offset(x, y))
 
-            val dateText =
-                textMeasurer.measure(
-                    AnnotatedString("Race ${data.raceNumber}"),
+            if ((index + 1) % increment == 0) {
+                val raceNumber = textMeasurer.measure(
+                    AnnotatedString("${index + 1}"),
                     TextStyle(fontSize = 10.sp)
                 )
-
-            drawText(
-                textLayoutResult = dateText,
-                topLeft = Offset(x, size.height + 16f),
-            )
-
-            val yLabelInterval = maxY / 5
-            for (i in 0..5) {
-                val label = (yLabelInterval * i).toInt().toString()
-                val labelLayout = textMeasurer.measure(
-                    AnnotatedString(label),
-                    TextStyle(fontSize = 10.sp)
-                )
-                // val mark = size.height - (i * (size.height / 5))
-                val mark = size.height - ((i * yLabelInterval / maxY) * (size.height - 20))
                 drawText(
-                    textLayoutResult = labelLayout,
-                    topLeft = Offset(paddingStart - 40f, mark - 10f)
+                    textLayoutResult = raceNumber,
+                    topLeft = Offset(x, size.height + 16f),
                 )
-
-                drawLine(start = Offset(paddingStart - 5f, mark), end = Offset(paddingStart, mark), color = Color.Black)
             }
 
+            // Connect the dots with lines
             if (index > 0) {
                 val prevX = paddingStart + (((index - 1).toFloat() / (maxX - 1)) * plotWidth)
                 val prevY = size.height - ((raceData[index - 1].wpm.toFloat() / maxY) * (size.height - 20))
                 drawLine(start = Offset(prevX, prevY), end = Offset(x, y), color = Color.Blue)
             }
+        }
 
+        // Draw y-values on the y-axis
+        val yIncrement = maxY / 5
+        for (i in 0..5) {
+            val yValue = (yIncrement * i).toInt()
+            val yValueLabel = textMeasurer.measure(
+                AnnotatedString("$yValue"),
+                TextStyle(fontSize = 10.sp)
+            )
+            val mark = size.height - ((i * yIncrement / maxY) * (size.height - 20))
+            drawText(
+                textLayoutResult = yValueLabel,
+                topLeft = Offset(paddingStart - 70f, mark + 5f),
+            )
         }
     }
 }
+
+
+
+
+
+
+
