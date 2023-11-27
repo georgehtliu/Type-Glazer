@@ -1,5 +1,8 @@
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -7,11 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.ktor.client.*
@@ -39,11 +39,41 @@ data class submitRaceResponse(val raceID: Int, val userID: Int, val textID: Int)
 @Serializable
 data class InsertResultRequest(val fromRaceID: Int, val toRaceID: Int)
 
+@Serializable
+// Data class to represent a User
+data class User(
+    val userID: Int,
+    val username: String,
+    val email: String,
+    val password: String
+)
+
 @Composable
 fun HomeScreen(currentUserState: UserState
 ) {
     Game(currentUserState)
 }
+
+suspend fun fetchUsers(): List<User> {
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    try {
+        val response: HttpResponse = client.get("http://localhost:5050/users")
+        client.close()
+        // Return the list of users from the response
+        return Json.decodeFromString(response.bodyAsText())
+    } catch (e: Exception) {
+        // Handle exceptions if needed
+
+        // Return an empty list in case of an exception
+        return emptyList()
+    }
+}
+
 
 @Composable
 fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
@@ -52,33 +82,31 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
     var iserror by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+    // Fetch users
+    val users = produceState(initialValue = emptyList<User>(), producer = {
+        value = fetchUsers()
+    })
+
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(8.dp)
     ) {
-        Column(
+        // TextBox, Button, Challenge
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
+            TextField(
                 value = text,
                 onValueChange = { text = it },
                 label = { Text("Friend's Username") },
+                modifier = Modifier
+                    .weight(0.4f) // Adjust the weight to make it smaller than half the screen
+                    .padding(end = 8.dp)
             )
 
-            message.let {
-                Spacer(modifier = Modifier.height(8.dp))
-                if (iserror) {
-                    Text(it, color = Color.Red)
-                } else {
-                    Text(it, color = Color.Green)
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Column(
-        ) {
             Button(
                 onClick = {
                     coroutineScope.launch(Dispatchers.Default) {
@@ -94,14 +122,48 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
                             iserror = true
                         }
                     }
-                }
+                },
+                modifier = Modifier.padding(horizontal = 8.dp)
             ) {
                 Text("Challenge")
             }
-            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        // Display the message here
+        if (message.isNotEmpty()) {
+            if (iserror) {
+                Text(message, color = Color.Red)
+            } else {
+                Text(message, color = Color.Green)
+            }
+        }
+
+        // Spacer to create space between the two sections
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Filtered Items
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            val filteredUsers = users.value.filter { it.username.contains(text, ignoreCase = true) }
+            LazyColumn {
+                items(filteredUsers) { user ->
+                    ClickableText(
+                        text = AnnotatedString(user.username),
+                        onClick = { offset ->
+                            // Handle click, populate the text with the selected item
+                            text = user.username
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
         }
     }
 }
+
+
 
 @Composable
 fun Game(currentUserState: UserState) {
