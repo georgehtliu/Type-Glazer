@@ -4,6 +4,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -475,6 +477,7 @@ fun Typer(
     var errorPosition by remember { mutableStateOf(0) }
     var prevValue by remember { mutableStateOf("") }
     var wordCount by remember { mutableStateOf(0) }
+    val focusRequester = remember { FocusRequester() }
 
     fun update(currentInput: String) {
         // If they deleted (1 character, multiple characters)
@@ -531,7 +534,10 @@ fun Typer(
         value = value,
         onValueChange = { update(it) },
         textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
-        modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp),
+        modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 20.dp).focusRequester(focusRequester),
     )
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 }
 
