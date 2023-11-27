@@ -37,6 +37,7 @@ dependencies {
     implementation ("com.google.code.gson:gson:2.8.8")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 }
 
 java {
@@ -47,3 +48,4 @@ java {
         vendor.set(JvmVendorSpec.AZUL) // Use set method for read-only properties
     }
 }
+
