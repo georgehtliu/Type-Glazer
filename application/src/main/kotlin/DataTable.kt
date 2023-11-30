@@ -163,7 +163,7 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-            .padding(bottom = 60.dp)
+            .padding(start = 40.dp, top = 20.dp, bottom = 60.dp)
     ) {
         val maxX = raceData.size.toFloat()
         val maxY = raceData.maxByOrNull { it.wpm }?.wpm?.toFloat() ?: 1f
@@ -185,7 +185,7 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
         )
         drawText(
             textLayoutResult = xAxisLabel,
-            topLeft = Offset(size.width / 2, size.height + 40f),
+            topLeft = Offset(size.width / 2 - 30f, size.height + 40f),
         )
 
         // Draw title
@@ -195,7 +195,7 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
         )
         drawText(
             textLayoutResult = title,
-            topLeft = Offset(size.width / 2, 30f),
+            topLeft = Offset(size.width / 2 - 65f, -25f),
         )
 
         // Calculate x-axis increment
