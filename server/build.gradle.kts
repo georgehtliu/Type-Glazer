@@ -31,6 +31,7 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-jdbc", "0.38.1")
     implementation("org.jetbrains.exposed", "exposed-dao", "0.38.1")
     implementation("org.xerial:sqlite-jdbc:3.34.0")
+    implementation("org.postgresql:postgresql:42.2.10")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-gson-jvm:$ktorVersion")
