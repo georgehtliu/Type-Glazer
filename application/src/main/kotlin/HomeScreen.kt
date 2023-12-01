@@ -2,7 +2,9 @@
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -88,7 +90,7 @@ fun InviteFriends(currentuserID: Int, currenttextID: Int, currentraceID: Int) {
     })
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(8.dp)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 150.dp)
     ) {
         // TextBox, Button, Challenge
         Row(
@@ -346,7 +348,12 @@ fun Game(currentUserState: UserState) {
             }
         }
 
-        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
 
             if (showStartButton) {
                 Button(
@@ -376,29 +383,37 @@ fun Game(currentUserState: UserState) {
                             wordsTyped = wordCount
                         }
                     }
-                } else {
-                    Button(
-                        onClick = { startNewRace() }
-                    ) {
-                        Text("Start New Race")
-                    }
-                    difficultyButtonGroup()
                 }
 
                 if (youWin) {
+                    val message = when {
+                        savedWpm >= 70 -> "Congratulations! You're a typing pro! 🚀"
+                        savedWpm >= 50 -> "Well done! You're typing at an above-average speed ⭐"
+                        savedWpm >= 30 -> "Good effort! Your typing speed is improving \uD83D\uDE80"
+                        else -> "Nice effort! Keep practicing to boost your typing speed ⭐"
+                    }
+
+                    Text(message,
+                        style = TextStyle(fontWeight = FontWeight.Bold))
+                    Spacer(modifier = Modifier.height(5.dp))
                     Text("WPM: $savedWpm")
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Button(
+                        onClick = { showStartButton = true }
+                    ) {
+                        Text("Start New Race")
+                    }
                 } else {
                     Text("WPM: $wpm")
                 }
 
                 if (youWin) {
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
                     Text("Challenge a Friend to the Same Race:")
                     Spacer(modifier = Modifier.height(20.dp))
                     InviteFriends(currentUserState.currentUser.userId, currentPassageIndex, raceID)
                 }
             }
-
         }
     }
 }
