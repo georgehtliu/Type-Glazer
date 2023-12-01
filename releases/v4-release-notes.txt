@@ -17,14 +17,16 @@ Based on the selected difficulty, they will see race texts of varying length.
 4. Save Window State
 The app now remembers and restores the user's window state.
 
-5. UI Bug Fixes
-Various UI bugs have been fixed:
+5. UI Bug Fixes/Improvements
 - Fixed components cutting off the page
 - Spacing/Layout
 - Fonts
+- Colour
+- Auto focus for start game and auto focus to login and signup
 
 6. Other Bug Fixes
 - 'Typing Progress' graph now shows the first race
 - User signup enforces unique usernames
 - Users cannot challenge themselves
 - Handle multiple letters being deleted on single backspace during the race
+- Detected and fixed various cases that caused the app to crash
