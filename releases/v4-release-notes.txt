@@ -1,0 +1,30 @@
+Version: 4.0
+Release Date: Dec 1, 2023
+
+New Features
+1. Challenge Results Page
+The user can now view how their score compares to others who've accepted the challenge.
+This feature is accessed through the 'Head to Head' tab in the bottom nav.
+
+2. Improved Invite Friends
+Previously, users needed to accurately type our their friend's user names to invite them to a challenge.
+Now, they can use the dropdown feature to select an user.
+
+3. Race Difficulty Levels
+Users are now able to choose the difficulty of the race (Easy, Medium, Hard).
+Based on the selected difficulty, they will see race texts of varying length.
+
+4. Save Window State
+The app now remembers and restores the user's window state.
+
+5. UI Bug Fixes
+Various UI bugs have been fixed:
+- Fixed components cutting off the page
+- Spacing/Layout
+- Fonts
+
+6. Other Bug Fixes
+- 'Typing Progress' graph now shows the first race
+- User signup enforces unique usernames
+- Users cannot challenge themselves
+- Handle multiple letters being deleted on single backspace during the race
