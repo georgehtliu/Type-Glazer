@@ -135,7 +135,7 @@ fun DataTable(currentUserState: UserState) {
 
                 // Display the time graph
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(50.dp))
                     TimeGraphCanvas(localRaceInfoList)
                 }
             }
@@ -233,19 +233,36 @@ fun TimeGraphCanvas(raceData: List<RaceInfo>) {
         }
 
         // Draw y-values on the y-axis
-        val yIncrement = maxY / 5
+        val yLabelInterval = maxY / 5
         for (i in 0..5) {
-            val yValue = (yIncrement * i).toInt()
-            val yValueLabel = textMeasurer.measure(
-                AnnotatedString("$yValue"),
+            val label = (yLabelInterval * i).toInt().toString()
+            val labelLayout = textMeasurer.measure(
+                AnnotatedString(label),
                 TextStyle(fontSize = 10.sp)
             )
-            val mark = size.height - ((i * yIncrement / maxY) * (size.height - 20))
+            val mark = size.height - ((i * yLabelInterval / maxY) * (size.height - 20))
             drawText(
-                textLayoutResult = yValueLabel,
-                topLeft = Offset(paddingStart - 70f, mark + 5f),
+                textLayoutResult = labelLayout,
+                topLeft = Offset(paddingStart - 40f, mark - 10f)
             )
+
+            drawLine(start = Offset(paddingStart - 5f, mark), end = Offset(paddingStart, mark), color = Color.Black)
         }
+
+        // commented out for now: looks very weird on my screen
+    //        val yIncrement = maxY / 5
+//        for (i in 0..5) {
+//            val yValue = (yIncrement * i).toInt()
+//            val yValueLabel = textMeasurer.measure(
+//                AnnotatedString("$yValue"),
+//                TextStyle(fontSize = 10.sp)
+//            )
+//            val mark = size.height - ((i * yIncrement / maxY) * (size.height - 20))
+//            drawText(
+//                textLayoutResult = yValueLabel,
+//                topLeft = Offset(paddingStart - 70f, mark + 5f),
+//            )
+//        }
     }
 }
 
