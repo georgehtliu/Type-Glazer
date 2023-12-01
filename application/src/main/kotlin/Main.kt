@@ -1,9 +1,14 @@
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -248,7 +253,9 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                         ) {
                             Button(onClick = {
                                 onSubmit()
-                            }) {
+                            },
+                                modifier = Modifier.width(250.dp)
+                            ) {
                                 if (isSignInMode) {
                                     Text("Sign In")
                                 } else {
@@ -264,10 +271,14 @@ fun IntroScreen(onDismiss: () -> Unit, currentuserId: userId) {
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Button(onClick = {
+                            OutlinedButton(onClick = {
                                 isSignInMode = !isSignInMode
                                 loginStatus = LoginStatus.NONE
-                            }) {
+                            },
+                                modifier = Modifier
+                                    .width(250.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colors.primarySurface)
+                            ) {
                                 if (isSignInMode) {
                                     Text("Sign Up as a new user")
                                 } else {
