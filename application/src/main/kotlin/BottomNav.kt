@@ -42,6 +42,6 @@ sealed class BottomNavScreen(
 
     object Settings : BottomNavScreen(
         title = "Log Out",
-        icon = Icons.Default.Settings
+        icon = Icons.Default.ArrowBack
     )
 }
