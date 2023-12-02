@@ -32,16 +32,16 @@ sealed class BottomNavScreen(
 
     object MyChallenges : BottomNavScreen (
         title = "My Challenges",
-        icon = Icons.Default.Favorite
+        icon = Icons.Default.MailOutline
     )
 
     object RaceDetails : BottomNavScreen (
         title = "Head to Head",
-        icon = Icons.Default.Star
+        icon = Icons.Default.Info
     )
 
     object Settings : BottomNavScreen(
         title = "Log Out",
-        icon = Icons.Default.Settings
+        icon = Icons.Default.ArrowBack
     )
 }
