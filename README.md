@@ -2,7 +2,7 @@
 
 **Project Name:** Type Glazer
 
-**Name:**: Cindy Gu, George Liu, Ray Hao, Mark Liu
+**Name:** Cindy Gu, George Liu, Ray Hao, Mark Liu
 
 **Links**:
 - [Project Proposal](https://git.uwaterloo.ca/r25hao/cs346/-/wikis/Project-Proposal)
