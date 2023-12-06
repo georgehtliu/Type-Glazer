@@ -13,6 +13,36 @@
 
 **Meeting Minutes**: 
 
+**Installation Details**:
+
+_**PART 1: Frontend**_
+
+Navigate to [cs346/releases/cs346-project-1.0.0.dmg](cs346/releases/cs346-project-1.0.0.dmg)
+
+Download the .dmg file
+
+After downloading, open the .dmg file from the downloads folder.
+
+Right click the application icon, and click “open”.
+
+A warning might pop up - if so, in the new options, click “open” again.
+
+This should start the frontend of the application.
+
+_**PART 2: Backend**_
+
+Ensure you have docker installed on your laptop
+
+Open Terminal
+
+Run the command “docker pull georgeliuu/cs-346-server”
+
+If you run “docker images”, you should see the image there
+
+Run the command “docker run -p 5050:5050 georgeliuu/cs-346-server”
+
+This should start the backend of the application.
+
 **Requirements:**
 
 _**Problem Description**_
