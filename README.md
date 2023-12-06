@@ -16,7 +16,7 @@
 
 _**PART 1: Frontend**_
 
-Navigate to [cs346/releases/cs346-project-1.0.0.dmg](cs346/releases/cs346-project-1.0.0.dmg)
+Navigate to [cs346/releases/cs346-project-1.0.0.dmg](https://git.uwaterloo.ca/r25hao/cs346/-/blob/main/releases/cs346-project-1.0.0.dmg)
 
 Download the .dmg file
 
