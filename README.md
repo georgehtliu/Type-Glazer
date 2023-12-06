@@ -93,7 +93,7 @@ _**Major Features**_
 **Architecture:**
 
 _**Architectural Diagram**_
-
+![img.png](img.png)
 
 _**Design Decisions**_
 
